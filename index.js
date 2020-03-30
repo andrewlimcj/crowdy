@@ -7,14 +7,17 @@ const placeSearch = (location) => {
   return new Promise(async (resolve, reject) => {
     let status;
     try {
+      console.log('A');
       const placeSearchResponse = await axios(`https://www.google.com/search?tbm=map&tch=1&q=${location.address}`);
-
+      console.log('B');
       const jsonBody = JSON.parse(placeSearchResponse.data.replace('/*""*/', '')).d.replace(")]}'", '');
       status = JSON.parse(jsonBody)[0][1][0][14][84][6];
     } catch (err) {
+      console.log('C');
       status = 'No popular times data';
     }
 
+    console.log('D');
     if (status.indexOf('Now: ') === -1 && status !== 'No popular times data') {
       location.live = true;
     }
