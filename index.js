@@ -5,23 +5,22 @@ const path = require('path');
 
 const placeSearch = (location) => {
   return new Promise(async (resolve, reject) => {
-    console.log(location.name);
-    let status = 'No popular times data';
+    let status;
+
     try {
       const placeSearchResponse = await axios(`https://www.google.com/search?tbm=map&tch=1&q=${location.address}`);
-      
+
       const jsonBody = JSON.parse(placeSearchResponse.data.replace('/*""*/', '')).d.replace(")]}'", '');
       status = JSON.parse(jsonBody)[0][1][0][14][84][6];
+
+      if (status.indexOf('Now: ') === -1 && status !== 'No popular times data') {
+        location.live = true;
+      }
+
+      status = status.replace('Now: ', '');
     } catch (err) {
-      console.log(err);
       status = 'No popular times data';
     }
-    console.log(status);
-    if (status.indexOf('Now: ') === -1 && status !== 'No popular times data') {
-      location.live = true;
-    }
-
-    status = status.replace('Now: ', '');
 
     location.status = status;
 
@@ -66,14 +65,14 @@ app.get('/api/locations', async (req, res) => {
   }
 
   const locations = await Promise.all(promises);
-  
+
   res.send({ locations });
 });
 
 // The "catchall" handler: for any request that doesn't
 // match one above, send back React's index.html file.
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname+'/client/build/index.html'));
+  res.sendFile(path.join(__dirname + '/client/build/index.html'));
 });
 
 const port = process.env.PORT || 5000;
