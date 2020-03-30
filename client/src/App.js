@@ -21,6 +21,7 @@ import Link from '@material-ui/core/Link';
 import Box from '@material-ui/core/Box';
 import Chip from '@material-ui/core/Chip';
 import WhereToVoteIcon from '@material-ui/icons/WhereToVote';
+import LinearProgress from '@material-ui/core/LinearProgress';
 
 function Copyright() {
   return (
@@ -149,6 +150,7 @@ export default function App() {
           </Container>
         </div>
         <Container className={classes.cardGrid} maxWidth="md">
+          {data.locations.length === 0 && <LinearProgress />}
           {/* End hero unit */}
           <Grid container spacing={4}>
             {data.locations.map((location, index) => (
