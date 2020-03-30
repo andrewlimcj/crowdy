@@ -77,6 +77,17 @@ const getDirectionsUrl = (location) => {
 export default function App() {
   const classes = useStyles();
 
+  const statusMappings = {
+    'Not busy': '#66cdaa',
+    'Not too busy': '#66cdaa',
+    'A little busy': '#ffa500',
+    'As busy as it gets': '#f998a5',
+    'Usually not busy': '#66cdaa',
+    'Usually not too busy': '#66cdaa',
+    'Usually a little busy': '#ffa500',
+    'Usually as busy as it gets': '#f998a5'
+  };
+
   const [data, setData] = useState({ locations: [] });
 
   const { latitude, longitude } = usePosition(true);
@@ -142,7 +153,7 @@ export default function App() {
                       {location.name}
                     </Typography>
                     {location.live && <Chip color="secondary" style={{ fontWeight: "bold" }} icon={<WhereToVoteIcon />} label="LIVE" />}{' '}
-                    <Chip style={{ backgroundColor: "#66cdaa" }} label={location.status} />
+                    <Chip style={{ backgroundColor: statusMappings[location.status] }} label={location.status} />
                     <Typography variant="subtitle2">
                       <Box fontStyle="italic" paddingTop={1} fontWeight="fontWeightLight">
                         {location.address}
