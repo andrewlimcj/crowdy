@@ -57,8 +57,7 @@ app.get('/api/locations', async (req, res) => {
     const name = htmlBody.substring(secondIndex + 1, firstIndex);
     const address = htmlBody.substring(thirdIndex + 17, fourthIndex);
     const live = false;
-    console.log(name);
-    console.log(address);
+    
     promises.push(placeSearch({ name, address, live }));
 
     htmlBody = htmlBody.replace(categoryToken, '');
