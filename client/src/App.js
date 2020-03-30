@@ -123,8 +123,14 @@ export default function App() {
               Crowdy
             </Typography>
             <Typography variant="h5" align="center" color="textSecondary" paragraph>
-              Find a supermarket near you that is not crowded!
-              Based on popular times data from Google Maps
+              Find supermarkets near you that are not crowded!
+              Based on <Link color="primary" href="https://support.google.com/business/answer/6263531?hl=en">popular times data*</Link> from Google Maps
+            </Typography>
+            <Typography variant="subtitle1" align="center" color="textSecondary" paragraph>
+              * Data might not be 100% accurate as it is obtained via web scraping
+            </Typography>
+            <Typography variant="subtitle2" align="center" color="textSecondary" paragraph>
+              ** "LIVE" - Live visit data; "Green" - Not busy, "Orange" - Slightly busy, "Red" - Very busy, "Grey" - No data
             </Typography>
             {/* <div className={classes.heroButtons}>
               <Grid container spacing={2} justify="center">
