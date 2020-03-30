@@ -131,7 +131,7 @@ export default function App() {
               * Data might not be 100% accurate as it is obtained via web scraping
             </Typography>
             <Typography variant="subtitle2" align="center" color="textSecondary" paragraph>
-              ** "LIVE" - Live visit data; "Green" - Not busy, "Orange" - Slightly busy, "Red" - Very busy, "Grey" - No data
+              ** "LIVE" - Live visit data; "Green" - Not busy; "Orange" - Slightly busy; "Red" - Very busy; "Grey" - No data
             </Typography>
             {/* <div className={classes.heroButtons}>
               <Grid container spacing={2} justify="center">
