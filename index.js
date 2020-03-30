@@ -1,7 +1,7 @@
 const express = require('express');
 const axios = require('axios');
 const app = express();
-const port = 9000;
+const path = require('path');
 
 const placeSearch = (location) => {
   return new Promise(async (resolve, reject) => {
@@ -26,6 +26,13 @@ const placeSearch = (location) => {
     resolve(location);
   });
 }
+
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, 'client/build')));
+
+app.get('/api/health', (req, res) => {
+  res.send('Healthy');
+});
 
 app.get('/api/locations', async (req, res) => {
   const category = req.query.category;
@@ -60,4 +67,11 @@ app.get('/api/locations', async (req, res) => {
   res.send({ locations });
 });
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+// The "catchall" handler: for any request that doesn't
+// match one above, send back React's index.html file.
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname+'/client/build/index.html'));
+});
+
+const port = process.env.PORT || 5000;
+app.listen(port, () => console.log(`Crowdy app listening on port ${port}!`));
