@@ -5,13 +5,15 @@ const path = require('path');
 
 const placeSearch = (location) => {
   return new Promise(async (resolve, reject) => {
+    console.log(location.name);
     let status = 'No popular times data';
     try {
       const placeSearchResponse = await axios(`https://www.google.com/search?tbm=map&tch=1&q=${location.address}`);
-      console.log(placeSearchResponse);
+      
       const jsonBody = JSON.parse(placeSearchResponse.data.replace('/*""*/', '')).d.replace(")]}'", '');
       status = JSON.parse(jsonBody)[0][1][0][14][84][6];
     } catch (err) {
+      console.log(err);
       status = 'No popular times data';
     }
     console.log(status);
