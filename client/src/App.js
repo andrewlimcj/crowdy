@@ -82,6 +82,7 @@ export default function App() {
     'Not too busy': '#66cdaa',
     'A little busy': '#ffa500',
     'As busy as it gets': '#f998a5',
+    'Busier than usual': '#f998a5',
     'Usually not busy': '#66cdaa',
     'Usually not too busy': '#66cdaa',
     'Usually a little busy': '#ffa500',
