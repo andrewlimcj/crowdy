@@ -144,11 +144,12 @@ export default function App() {
             <Typography variant="subtitle1" align="center" color="textSecondary" paragraph>
               * Data might not be 100% accurate as it is obtained via web scraping
             </Typography>
-            <Typography variant="subtitle2" align="center" color="textSecondary" paragraph>
+            <Typography variant="subtitle1" align="center" color="textSecondary" paragraph>
               ** <span style={{color: "#f6546a"}}><b>LIVE</b></span> - Live visit data;{' '}
               <span style={{color: "#66cdaa"}}><b>Green</b></span> - Not busy;{' '} 
               <span style={{color: "#ffa500"}}><b>Orange</b></span> - Slightly busy;{' '}
-              <span style={{color: "#f998a5"}}><b>Red</b></span> - Very busy; "Grey" - No data
+              <span style={{color: "#f998a5"}}><b>Red</b></span> - Very busy;{' '}
+              <span><b>Grey</b></span> - No data
             </Typography>
             {/* <div className={classes.heroButtons}>
               <Grid container spacing={2} justify="center">
