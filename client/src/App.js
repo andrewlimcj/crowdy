@@ -74,6 +74,14 @@ const getDirectionsUrl = (location) => {
   return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(location.address)}`;
 }
 
+const getLocations = (category, latitude, longitude) => {
+  return new Promise((resolve, reject) => {
+    fetch(`/api/locations?category=${category}&latitude=${latitude}&longitude=${longitude}`)
+      .then(res => res.json())
+      .then(locations => resolve(locations));
+  });
+}
+
 export default function App() {
   const classes = useStyles();
 
@@ -95,10 +103,16 @@ export default function App() {
 
   useEffect(() => {
     if (latitude && longitude) {
-      const fetchData = () => {
-        fetch(`/api/locations?category=Supermarket&latitude=${latitude}&longitude=${longitude}`)
-          .then(res => res.json())
-          .then(locations => setData(locations));
+      const fetchData = async () => {
+        const promises = [];
+        
+        promises.push(getLocations('Supermarket', latitude, longitude));
+        promises.push(getLocations('Grocery store', latitude, longitude));
+
+        const result = await Promise.all(promises);
+        setData({
+          locations: result[0].locations.concat(result[1].locations)
+        });
       };
 
       fetchData();
