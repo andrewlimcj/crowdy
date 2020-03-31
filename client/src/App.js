@@ -186,7 +186,7 @@ export default function App() {
       <footer className={classes.footer}>
         <Grid container justify="center">
           <Grid item>
-            <Link color="inherit" href="https://github.com/">
+            <Link color="inherit" href="https://github.com/andrewlimcj/crowdy">
               <GitHubIcon className={classes.icon} />
             </Link>
           </Grid>
