@@ -8,9 +8,10 @@ const placeSearch = (location) => {
     let status;
 
     try {
-      const placeSearchResponse = await axios(`https://www.google.com/search?tbm=map&tch=1&q=${location.address}`);
+      const placeSearchResponse = await axios(`https://www.google.com/search?tbm=map&tch=1&q=${encodeURIComponent(location.address)}`);
 
       const jsonBody = JSON.parse(placeSearchResponse.data.replace('/*""*/', '')).d.replace(")]}'", '');
+
       status = JSON.parse(jsonBody)[0][1][0][14][84][6];
 
       if (status.indexOf('Now: ') === -1 && status !== 'No popular times data') {
