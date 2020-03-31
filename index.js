@@ -66,25 +66,26 @@ app.get('/api/locations', async (req, res) => {
 
     const name = htmlBody.substring(secondIndex + 1, firstIndex);
     const address = htmlBody.substring(thirdIndex + 17, fourthIndex);
-    let distance = geolib.getDistance(
+    let distanceRaw = geolib.getDistance(
       { latitude, longitude },
       { latitude: coordinates[2], longitude: coordinates[3] }
     );
-      
-    if (distance >= 1000) {
-      distance = (distance / 1000).toFixed(1) + ' km';
+
+    let distance;
+    if (distanceRaw >= 1000) {
+      distance = `${(distanceRaw / 1000).toFixed(1)} km`;
     } else {
-      distance += ' m';
+      distance = `${distanceRaw} m`;
     }
 
     const live = false;
 
-    promises.push(placeSearch({ name, address, distance, live }));
+    promises.push(placeSearch({ name, address, distance, distanceRaw, live }));
 
     htmlBody = htmlBody.replace(categoryToken, '');
   }
 
-  const locations = await Promise.all(promises);
+  let locations = await Promise.all(promises);
 
   res.send({ locations });
 });

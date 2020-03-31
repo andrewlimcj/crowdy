@@ -1,6 +1,7 @@
 // core
 import React, { useState, useEffect } from 'react';
 import { usePosition } from 'use-position';
+import _ from 'lodash';
 
 // material-ui
 import AppBar from '@material-ui/core/AppBar';
@@ -21,6 +22,15 @@ import Box from '@material-ui/core/Box';
 import Chip from '@material-ui/core/Chip';
 import WhereToVoteIcon from '@material-ui/icons/WhereToVote';
 import LinearProgress from '@material-ui/core/LinearProgress';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import Avatar from '@material-ui/core/Avatar';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemAvatar from '@material-ui/core/ListItemAvatar';
+import ListItemText from '@material-ui/core/ListItemText';
+import Dialog from '@material-ui/core/Dialog';
+import LocationOnIcon from '@material-ui/icons/LocationOn';
+import PeopleIcon from '@material-ui/icons/People';
 
 function Copyright() {
   return (
@@ -66,6 +76,42 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+function SortDialog(props) {
+  const classes = useStyles();
+  const { onClose, selectedValue, open } = props;
+
+  const handleClose = () => {
+    onClose(selectedValue);
+  };
+
+  const handleListItemClick = (value) => {
+    onClose(value);
+  };
+
+  return (
+    <Dialog fullWidth="true" onClose={handleClose} open={open}>
+      <List>
+        <ListItem button onClick={() => handleListItemClick('distance')}>
+          <ListItemAvatar>
+            <Avatar className={classes.avatar}>
+              <LocationOnIcon />
+            </Avatar>
+          </ListItemAvatar>
+          <ListItemText primary="Distance" />
+        </ListItem>
+        <ListItem button onClick={() => handleListItemClick('crowd')}>
+          <ListItemAvatar>
+            <Avatar className={classes.avatar}>
+              <PeopleIcon />
+            </Avatar>
+          </ListItemAvatar>
+          <ListItemText primary="Crowd" />
+        </ListItem>
+      </List>
+    </Dialog>
+  );
+}
+
 const getViewUrl = (location) => {
   return `https://maps.google.com/?q=${encodeURIComponent(location.address)}`;
 }
@@ -97,27 +143,65 @@ export default function App() {
     'Usually as busy as it gets': '#f998a5'
   };
 
+  const [sort, setSort] = useState('distance');
+
+  const [open, setOpen] = React.useState(false);
+
   const [data, setData] = useState({ locations: [] });
 
   const { latitude, longitude } = usePosition(true);
 
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = (value) => {
+    setOpen(false);
+    setSort(value);
+  };
+
   useEffect(() => {
     if (latitude && longitude) {
       const fetchData = async () => {
+        setData({ locations: [] });
+
         const promises = [];
 
         promises.push(getLocations('Supermarket', latitude, longitude));
         promises.push(getLocations('Grocery store', latitude, longitude));
 
         const result = await Promise.all(promises);
-        setData({
+        const data = {
           locations: result[0].locations.concat(result[1].locations)
-        });
+        };
+
+        const statusWeightage = {
+          'Not busy': 1,
+          'Not too busy': 2,
+          'A little busy': 3,
+          'As busy as it gets': 4,
+          'Busier than usual': 4,
+          'Usually not busy': 1.5,
+          'Usually not too busy': 2.5,
+          'Usually a little busy': 3.5,
+          'Usually as busy as it gets': 4.5,
+          'No popular times data': 5
+        };
+
+        if (sort === 'distance') {
+          data.locations = _.sortBy(data.locations, ['distanceRaw']);
+        } else if (sort === 'crowd') {
+          data.locations = _.sortBy(data.locations, [(location) => {
+            return statusWeightage[location.status];
+          }, 'distanceRaw']);
+        }
+
+        setData(data);
       };
 
       fetchData();
     }
-  }, [latitude, longitude]);
+  }, [latitude, longitude, sort]);
 
   return (
     <React.Fragment>
@@ -145,26 +229,27 @@ export default function App() {
               * Data might not be 100% accurate as it is obtained via web scraping
             </Typography>
             <Typography variant="subtitle1" align="center" color="textSecondary" paragraph>
-              ** <span style={{color: "#f6546a"}}><b>LIVE</b></span> - Live visit data;{' '}
-              <span style={{color: "#66cdaa"}}><b>Green</b></span> - Not busy;{' '} 
-              <span style={{color: "#ffa500"}}><b>Orange</b></span> - Slightly busy;{' '}
-              <span style={{color: "#f998a5"}}><b>Red</b></span> - Very busy;{' '}
+              ** <span style={{ color: "#f6546a" }}><b>LIVE</b></span> - Live visit data;{' '}
+              <span style={{ color: "#66cdaa" }}><b>Green</b></span> - Not busy;{' '}
+              <span style={{ color: "#ffa500" }}><b>Orange</b></span> - Slightly busy;{' '}
+              <span style={{ color: "#f998a5" }}><b>Red</b></span> - Very busy;{' '}
               <span><b>Grey</b></span> - No data
             </Typography>
-            {/* <div className={classes.heroButtons}>
+            <div className={classes.heroButtons}>
               <Grid container spacing={2} justify="center">
                 <Grid item>
-                  <Button variant="contained" color="primary">
-                    Main call to action
+                  <Button variant="outlined" color="primary" endIcon={<ExpandMoreIcon />} onClick={handleClickOpen}>
+                    Sort By: {sort}
                   </Button>
                 </Grid>
-                <Grid item>
+                {/* <Grid item>
                   <Button variant="outlined" color="primary">
                     Secondary action
                   </Button>
-                </Grid>
+                </Grid> */}
               </Grid>
-            </div> */}
+              <SortDialog selectedValue={sort} open={open} onClose={handleClose} />
+            </div>
           </Container>
         </div>
         <Container className={classes.cardGrid} maxWidth="md">
