@@ -157,7 +157,11 @@ export default function App() {
 
   const handleClose = (value) => {
     setOpen(false);
-    setSort(value);
+
+    if (sort !== value) {
+      setSort(value);
+      setData({ locations: [] });
+    }
   };
 
   useEffect(() => {
