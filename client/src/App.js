@@ -163,8 +163,6 @@ export default function App() {
   useEffect(() => {
     if (latitude && longitude) {
       const fetchData = async () => {
-        setData({ locations: [] });
-
         const promises = [];
 
         promises.push(getLocations('Supermarket', latitude, longitude));
