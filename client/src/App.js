@@ -181,7 +181,12 @@ export default function App() {
                     {location.live && <Chip color="secondary" style={{ fontWeight: "bold" }} icon={<WhereToVoteIcon />} label="LIVE" />}{' '}
                     <Chip style={{ backgroundColor: statusMappings[location.status] }} label={location.status} />
                     <Typography variant="subtitle2">
-                      <Box fontStyle="italic" paddingTop={1} fontWeight="fontWeightLight">
+                      <Box fontStyle="italic" paddingTop={1} fontWeight="fontWeightRegular">
+                        {location.distance}
+                      </Box>
+                    </Typography>
+                    <Typography variant="subtitle2">
+                      <Box fontStyle="italic" fontWeight="fontWeightLight">
                         {location.address}
                       </Box>
                     </Typography>

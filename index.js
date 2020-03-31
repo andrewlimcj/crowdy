@@ -1,5 +1,6 @@
 const express = require('express');
 const axios = require('axios');
+const geolib = require('geolib');
 const app = express();
 const path = require('path');
 
@@ -50,16 +51,35 @@ app.get('/api/locations', async (req, res) => {
   const promises = [];
 
   while (htmlBody.indexOf(categoryToken) !== -1) {
+    // to find name
     const firstIndex = htmlBody.indexOf(categoryToken);
     const secondIndex = htmlBody.lastIndexOf('"', firstIndex);
+
+    // to find address
     const thirdIndex = htmlBody.indexOf('null,null,null,', firstIndex);
     const fourthIndex = htmlBody.indexOf('\\\",', thirdIndex);
 
+    // to find lat, long
+    const fifthIndex = htmlBody.lastIndexOf('[', firstIndex);
+    const sixthIndex = htmlBody.lastIndexOf(']', firstIndex);
+    const coordinates = htmlBody.substring(fifthIndex + 1, sixthIndex).split(',');
+
     const name = htmlBody.substring(secondIndex + 1, firstIndex);
     const address = htmlBody.substring(thirdIndex + 17, fourthIndex);
+    let distance = geolib.getDistance(
+      { latitude, longitude },
+      { latitude: coordinates[2], longitude: coordinates[3] }
+    );
+      
+    if (distance >= 1000) {
+      distance = (distance / 1000).toFixed(1) + ' km';
+    } else {
+      distance += ' m';
+    }
+
     const live = false;
-    
-    promises.push(placeSearch({ name, address, live }));
+
+    promises.push(placeSearch({ name, address, distance, live }));
 
     htmlBody = htmlBody.replace(categoryToken, '');
   }
