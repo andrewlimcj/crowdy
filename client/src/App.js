@@ -1,6 +1,5 @@
 // core
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { usePosition } from 'use-position';
 
 // material-ui
