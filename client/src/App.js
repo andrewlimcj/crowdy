@@ -182,7 +182,7 @@ export default function App() {
                     <Chip style={{ backgroundColor: statusMappings[location.status] }} label={location.status} />
                     <Typography variant="subtitle2">
                       <Box fontStyle="italic" paddingTop={1} fontWeight="fontWeightRegular">
-                        {location.distance}
+                        ~{location.distance}
                       </Box>
                     </Typography>
                     <Typography variant="subtitle2">
