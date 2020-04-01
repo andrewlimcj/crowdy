@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { usePosition } from 'use-position';
 import _ from 'lodash';
+import socketIOClient from "socket.io-client";
 
 // material-ui
 import AppBar from '@material-ui/core/AppBar';
@@ -89,7 +90,7 @@ function SortDialog(props) {
   };
 
   return (
-    <Dialog fullWidth="true" onClose={handleClose} open={open}>
+    <Dialog fullWidth={true} onClose={handleClose} open={open}>
       <List>
         <ListItem button onClick={() => handleListItemClick('distance')}>
           <ListItemAvatar>
@@ -128,6 +129,8 @@ const getLocations = (category, latitude, longitude) => {
   });
 }
 
+const socket = socketIOClient("http://localhost:5000");
+
 export default function App() {
   const classes = useStyles();
 
@@ -150,6 +153,12 @@ export default function App() {
   const [data, setData] = useState({ locations: [] });
 
   const { latitude, longitude } = usePosition(true);
+
+  const [stats, setStats] = useState({ numUsers: 0 })
+
+  socket.on('numUsers', function (data) {
+    setStats(data);
+  });
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -294,11 +303,16 @@ export default function App() {
       </main>
       {/* Footer */}
       <footer className={classes.footer}>
-        <Grid container justify="center">
+        <Grid container direction="row" justify="center">
           <Grid item>
             <Link color="inherit" href="https://github.com/andrewlimcj/crowdy">
               <GitHubIcon className={classes.icon} />
             </Link>
+          </Grid>
+          <Grid item>
+            <Typography variant="subtitle1" align="center" color="textSecondary" component="p">
+              {stats.numUsers} user(s) online
+            </Typography>
           </Grid>
         </Grid>
         <Typography variant="subtitle1" align="center" color="textSecondary" component="p">

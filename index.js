@@ -2,7 +2,11 @@ const express = require('express');
 const axios = require('axios');
 const geolib = require('geolib');
 const app = express();
+const server = require('http').Server(app);
+const io = require('socket.io')(server);
 const path = require('path');
+
+let numUsers = 0;
 
 const placeSearch = (location) => {
   return new Promise(async (resolve, reject) => {
@@ -97,4 +101,20 @@ app.get('*', (req, res) => {
 });
 
 const port = process.env.PORT || 5000;
-app.listen(port, () => console.log(`Crowdy app listening on port ${port}!`));
+server.listen(port, () => console.log(`Crowdy app listening on port ${port}!`));
+
+io.on('connection', function (socket) {
+  numUsers++;
+
+  io.emit('numUsers', {
+    numUsers
+  });
+
+  socket.on("disconnect", () => {
+    numUsers--;
+
+    io.emit('numUsers', {
+      numUsers
+    });
+  });
+});

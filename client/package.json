@@ -17,6 +17,7 @@
     "react": "latest",
     "react-dom": "latest",
     "react-scripts": "latest",
+    "socket.io-client": "^2.3.0",
     "use-position": "0.0.6"
   },
   "browserslist": {
