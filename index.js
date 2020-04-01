@@ -92,6 +92,9 @@ app.get('/api/locations', async (req, res) => {
     promises.push(placeSearch({ name, address, distance, distanceRaw, live }));
 
     htmlBody = htmlBody.replace(categoryToken, '');
+    console.log(htmlBody.indexOf('FairPrice Bukit Batok Central'));
+    console.log(categoryToken);
+    console.log(htmlBody.indexOf(categoryToken));
   }
 
   if (htmlBody.indexOf('FairPrice Bukit Batok Central') !== -1) {
