@@ -129,7 +129,7 @@ const getLocations = (category, latitude, longitude) => {
   });
 }
 
-const socket = socketIOClient("http://localhost:5000");
+const socket = socketIOClient(process.env.NODE_ENV === "development" ? "http://localhost:5000": "https://crowdy-2020.herokuapp.com");
 
 export default function App() {
   const classes = useStyles();
