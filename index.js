@@ -49,7 +49,9 @@ app.get('/api/locations', async (req, res) => {
 
   const categorySearchResponse = await axios(`https://www.google.com/maps/search/${category}/@${latitude},${longitude},${zoom}z/data=!3m1!4b1`);
   let htmlBody = categorySearchResponse.data;
-  console.log(htmlBody.indexOf('FairPrice Bukit Batok Central'));
+  if (htmlBody.indexOf('FairPrice Bukit Batok Central') !== -1) {
+    console.log(htmlBody.substring(htmlBody.indexOf('FairPrice Bukit Batok Central') - 100, htmlBody.indexOf('FairPrice Bukit Batok Central') + 100));
+  }
   const categoryToken = `\\\",null,[\\\"${category}\\\"`;
 
   const promises = [];
