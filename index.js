@@ -54,6 +54,11 @@ app.get('/api/locations', async (req, res) => {
 
   const promises = [];
 
+  if (htmlBody.indexOf('FairPrice Bukit Batok Central') !== -1) {
+    console.log('before');
+    console.log(htmlBody.substring(htmlBody.indexOf('FairPrice Bukit Batok Central') - 100, htmlBody.indexOf('FairPrice Bukit Batok Central') + 100));
+  }
+
   while (htmlBody.indexOf(categoryToken) !== -1) {
     // to find name
     const firstIndex = htmlBody.indexOf(categoryToken);
@@ -83,10 +88,15 @@ app.get('/api/locations', async (req, res) => {
     }
 
     const live = false;
-    console.log(name);
+
     promises.push(placeSearch({ name, address, distance, distanceRaw, live }));
 
     htmlBody = htmlBody.replace(categoryToken, '');
+  }
+
+  if (htmlBody.indexOf('FairPrice Bukit Batok Central') !== -1) {
+    console.log('after');
+    console.log(htmlBody.substring(htmlBody.indexOf('FairPrice Bukit Batok Central') - 100, htmlBody.indexOf('FairPrice Bukit Batok Central') + 100));
   }
 
   let locations = await Promise.all(promises);
