@@ -32,6 +32,8 @@ import ListItemText from '@material-ui/core/ListItemText';
 import Dialog from '@material-ui/core/Dialog';
 import LocationOnIcon from '@material-ui/icons/LocationOn';
 import PeopleIcon from '@material-ui/icons/People';
+import Snackbar from '@material-ui/core/Snackbar';
+import MuiAlert from '@material-ui/lab/Alert';
 
 function Copyright() {
   return (
@@ -113,6 +115,33 @@ function SortDialog(props) {
   );
 }
 
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
+
+function LocationSnackbar(props) {
+  const classes = useStyles();
+  const { setSnackbarOpen, snackbarOpen } = props;
+
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setSnackbarOpen(false);
+  };
+
+  return (
+    <div className={classes.root}>
+      <Snackbar open={snackbarOpen} autoHideDuration={10000} onClose={handleClose}>
+        <Alert onClose={handleClose} severity="warning">
+          Please turn on your location services and refresh this page!
+        </Alert>
+      </Snackbar>
+    </div>
+  );
+}
+
 const getViewUrl = (location) => {
   return `https://maps.google.com/?q=${encodeURIComponent(location.address)}`;
 }
@@ -129,7 +158,7 @@ const getLocations = (category, latitude, longitude) => {
   });
 }
 
-const socket = socketIOClient(process.env.NODE_ENV === "development" ? "http://localhost:5000": "https://crowdy-2020.herokuapp.com");
+const socket = socketIOClient(process.env.NODE_ENV === "development" ? "http://localhost:5000" : "https://crowdy-2020.herokuapp.com");
 
 export default function App() {
   const classes = useStyles();
@@ -146,23 +175,24 @@ export default function App() {
     'Usually as busy as it gets': '#f998a5'
   };
 
-  const [sort, setSort] = useState('distance');
-
-  const [open, setOpen] = React.useState(false);
-
   const [data, setData] = useState({ locations: [] });
 
   const { latitude, longitude, error } = usePosition(true);
-  console.log(error);
-  const [stats, setStats] = useState({ numUsers: 0 })
+
+  const [stats, setStats] = useState({ numUsers: 0 });
 
   socket.on('numUsers', function (data) {
     setStats(data);
   });
 
+  // for dialog
+  const [sort, setSort] = useState('distance');
+
+  const [open, setOpen] = React.useState(false);
+
   const handleClickOpen = () => {
     setOpen(true);
-  };
+  }
 
   const handleClose = (value) => {
     setOpen(false);
@@ -172,6 +202,9 @@ export default function App() {
       setData({ locations: [] });
     }
   };
+
+  // for snackbar 
+  const [snackbarOpen, setSnackbarOpen] = React.useState(false);
 
   useEffect(() => {
     if (latitude && longitude) {
@@ -211,8 +244,12 @@ export default function App() {
       };
 
       fetchData();
+    } else {
+      if (error === 'User denied Geolocation') {
+        setSnackbarOpen(true);
+      }
     }
-  }, [latitude, longitude, sort]);
+  }, [latitude, longitude, error, sort]);
 
   return (
     <React.Fragment>
@@ -253,18 +290,14 @@ export default function App() {
                     Sort By: {sort}
                   </Button>
                 </Grid>
-                {/* <Grid item>
-                  <Button variant="outlined" color="primary">
-                    Secondary action
-                  </Button>
-                </Grid> */}
               </Grid>
               <SortDialog selectedValue={sort} open={open} onClose={handleClose} />
+              <LocationSnackbar snackbarOpen={snackbarOpen} setSnackbarOpen={setSnackbarOpen} />
             </div>
           </Container>
         </div>
         <Container className={classes.cardGrid} maxWidth="md">
-          {data.locations.length === 0 && <LinearProgress />}
+          {data.locations.length === 0 && error === null && <LinearProgress />}
           {/* End hero unit */}
           <Grid container spacing={4}>
             {data.locations.map((location, index) => (

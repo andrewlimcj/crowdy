@@ -12,6 +12,7 @@
   "dependencies": {
     "@material-ui/core": "latest",
     "@material-ui/icons": "^4.9.1",
+    "@material-ui/lab": "^4.0.0-alpha.47",
     "clsx": "latest",
     "lodash": "^4.17.15",
     "react": "latest",
