@@ -152,8 +152,8 @@ export default function App() {
 
   const [data, setData] = useState({ locations: [] });
 
-  const { latitude, longitude } = usePosition(true);
-
+  const { latitude, longitude, error } = usePosition(true);
+  console.log(error);
   const [stats, setStats] = useState({ numUsers: 0 })
 
   socket.on('numUsers', function (data) {
