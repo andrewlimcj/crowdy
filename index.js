@@ -50,7 +50,8 @@ app.get('/api/locations', async (req, res) => {
   const categorySearchResponse = await axios(`https://www.google.com/maps/search/${category}/@${latitude},${longitude},${zoom}z/data=!3m1!4b1`);
   let htmlBody = categorySearchResponse.data;
 
-  const categoryToken = `\\\",null,[\\\"${category}\\\"`;
+  // const categoryToken = `\\\",null,[\\\"${category}\\\"`;
+  const categoryToken = `\\\",null,[\\\"`;
 
   const promises = [];
 
@@ -87,6 +88,11 @@ app.get('/api/locations', async (req, res) => {
     promises.push(placeSearch({ name, address, distance, distanceRaw, live }));
 
     htmlBody = htmlBody.replace(categoryToken, '');
+
+    // replace again to remove contact number (TODO: improve this hardcoded part)
+    if (htmlBody.substring(htmlBody.indexOf(categoryToken) + 11, htmlBody.indexOf(categoryToken) + 15) === 'tel:') {
+      htmlBody = htmlBody.replace(categoryToken, '');
+    }
   }
 
   let locations = await Promise.all(promises);

@@ -219,6 +219,9 @@ export default function App() {
           locations: result[0].locations.concat(result[1].locations)
         };
 
+        // remove duplicates
+        data.locations = _.uniqBy(data.locations, 'name');
+
         const statusWeightage = {
           'Not busy': 1,
           'Not too busy': 2,
