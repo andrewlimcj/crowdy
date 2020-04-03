@@ -166,6 +166,7 @@ export default function App() {
   const statusMappings = {
     'Not busy': '#66cdaa',
     'Not too busy': '#66cdaa',
+    'Less busy than usual': '#66cdaa',
     'A little busy': '#ffa500',
     'As busy as it gets': '#f998a5',
     'Busier than usual': '#f998a5',
@@ -225,6 +226,7 @@ export default function App() {
         const statusWeightage = {
           'Not busy': 1,
           'Not too busy': 2,
+          'Less busy than usual': 2,
           'A little busy': 3,
           'As busy as it gets': 4,
           'Busier than usual': 4,
