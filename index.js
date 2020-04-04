@@ -50,10 +50,6 @@ app.get('/api/locations', async (req, res) => {
   const categorySearchResponse = await axios(`https://www.google.com/maps/search/${category}/@${latitude},${longitude},${zoom}z/data=!3m1!4b1`);
   let htmlBody = categorySearchResponse.data;
 
-  if (htmlBody.indexOf('Cold Storage Bugis Junction') !== -1) {
-    console.log(htmlBody.substring(htmlBody.indexOf('Cold Storage Bugis Junction') - 100, htmlBody.indexOf('Cold Storage Bugis Junction') + 100));
-  }
-
   // const categoryToken = `\\\",null,[\\\"${category}\\\"`;
   const categoryToken = `\\\",null,[\\\"`;
 
