@@ -34,6 +34,7 @@ import LocationOnIcon from '@material-ui/icons/LocationOn';
 import PeopleIcon from '@material-ui/icons/People';
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
+import LinkedInIcon from '@material-ui/icons/LinkedIn';
 
 function Copyright() {
   return (
@@ -342,6 +343,11 @@ export default function App() {
       {/* Footer */}
       <footer className={classes.footer}>
         <Grid container direction="row" justify="center">
+        <Grid item>
+            <Link color="inherit" href="https://www.linkedin.com/in/andrewlcja">
+              <LinkedInIcon className={classes.icon} />
+            </Link>
+          </Grid>
           <Grid item>
             <Link color="inherit" href="https://github.com/andrewlimcj/crowdy">
               <GitHubIcon className={classes.icon} />
