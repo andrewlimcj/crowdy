@@ -35,6 +35,9 @@ import PeopleIcon from '@material-ui/icons/People';
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
 import LinkedInIcon from '@material-ui/icons/LinkedIn';
+import LocalGroceryStoreIcon from '@material-ui/icons/LocalGroceryStore';
+import LocalMallIcon from '@material-ui/icons/LocalMall';
+import Tooltip from '@material-ui/core/Tooltip';
 
 function Copyright() {
   return (
@@ -60,8 +63,8 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(4),
   },
   cardGrid: {
-    paddingTop: theme.spacing(8),
-    paddingBottom: theme.spacing(8),
+    paddingTop: theme.spacing(2),
+    paddingBottom: theme.spacing(2),
   },
   card: {
     height: '100%',
@@ -78,6 +81,12 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.background.paper,
     padding: theme.spacing(6),
   },
+  categoryActive: {
+    backgroundColor: theme.palette.primary.main
+  },
+  categoryDefault: {
+    cursor: "pointer"
+  }
 }));
 
 function SortDialog(props) {
@@ -208,18 +217,36 @@ export default function App() {
   // for snackbar 
   const [snackbarOpen, setSnackbarOpen] = React.useState(false);
 
+  // for category
+  const [category, setCategory] = useState('Supermarkets');
+
+  const handleCategoryClick = (value) => {
+    if (category !== value) {
+      setCategory(value);
+      setData({ locations: [] });
+    }
+  };
+
   useEffect(() => {
     if (latitude && longitude) {
       const fetchData = async () => {
         const promises = [];
 
-        promises.push(getLocations('Supermarket', latitude, longitude));
-        promises.push(getLocations('Grocery store', latitude, longitude));
+        if (category === 'Supermarkets') {
+          promises.push(getLocations('Supermarket', latitude, longitude));
+          promises.push(getLocations('Grocery store', latitude, longitude));
+        } else if (category === 'Shopping Malls') {
+          promises.push(getLocations('Shopping mall', latitude, longitude));
+        }
 
         const result = await Promise.all(promises);
         const data = {
-          locations: result[0].locations.concat(result[1].locations)
+          locations: result[0].locations
         };
+
+        if (result[1]) {
+          data.locations = data.locations.concat(result[1].locations);
+        }
 
         // remove duplicates
         data.locations = _.uniqBy(data.locations, 'name');
@@ -255,7 +282,7 @@ export default function App() {
         setSnackbarOpen(true);
       }
     }
-  }, [latitude, longitude, error, sort]);
+  }, [latitude, longitude, error, sort, category]);
 
   return (
     <React.Fragment>
@@ -290,11 +317,33 @@ export default function App() {
               <span><b>Grey</b></span> - No data
             </Typography>
             <div className={classes.heroButtons}>
-              <Grid container spacing={2} justify="center">
+              <Grid container spacing={3} direction="column">
                 <Grid item>
-                  <Button variant="outlined" color="primary" endIcon={<ExpandMoreIcon />} onClick={handleClickOpen}>
-                    Sort By: {sort}
-                  </Button>
+                  <Grid container spacing={2} justify="center">
+                    <Grid item>
+                      <Tooltip title="Supermarkets">
+                        <Avatar className={category === "Supermarkets" ? classes.categoryActive : classes.categoryDefault} onClick={() => { handleCategoryClick("Supermarkets") }}>
+                          <LocalGroceryStoreIcon />
+                        </Avatar>
+                      </Tooltip>
+                    </Grid>
+                    <Grid item>
+                      <Tooltip title="Shopping Malls">
+                        <Avatar className={category === "Shopping Malls" ? classes.categoryActive : classes.categoryDefault} onClick={() => { handleCategoryClick("Shopping Malls") }}>
+                          <LocalMallIcon />
+                        </Avatar>
+                      </Tooltip>
+                    </Grid>
+                  </Grid>
+                </Grid>
+                <Grid item>
+                  <Grid container spacing={2} justify="center">
+                    <Grid item>
+                      <Button variant="outlined" color="primary" endIcon={<ExpandMoreIcon />} onClick={handleClickOpen}>
+                        Sort By: {sort}
+                      </Button>
+                    </Grid>
+                  </Grid>
                 </Grid>
               </Grid>
               <SortDialog selectedValue={sort} open={open} onClose={handleClose} />
@@ -343,7 +392,7 @@ export default function App() {
       {/* Footer */}
       <footer className={classes.footer}>
         <Grid container direction="row" justify="center">
-        <Grid item>
+          <Grid item>
             <Link color="inherit" href="https://www.linkedin.com/in/andrewlcja">
               <LinkedInIcon className={classes.icon} />
             </Link>
