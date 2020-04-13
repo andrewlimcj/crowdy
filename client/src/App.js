@@ -39,6 +39,8 @@ import LocalGroceryStoreIcon from '@material-ui/icons/LocalGroceryStore';
 import LocalMallIcon from '@material-ui/icons/LocalMall';
 import Tooltip from '@material-ui/core/Tooltip';
 
+import Map from "./components/Map";
+
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
@@ -354,6 +356,10 @@ export default function App() {
         <Container className={classes.cardGrid} maxWidth="md">
           {data.locations.length === 0 && error === null && <LinearProgress />}
           {/* End hero unit */}
+          {data.locations.length > 0 && 
+            <Container maxWidth="md" minHeight="md">
+              <Map data={data} />
+            </Container>}
           <Grid container spacing={4}>
             {data.locations.map((location, index) => (
               <Grid item key={index} xs={12} sm={6} md={4}>

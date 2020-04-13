@@ -1,0 +1,14 @@
+.pin {
+  width: 30px;
+  height: 30px;
+  border-radius: 12px;
+  background-size: 22px;
+  background-repeat: no-repeat;
+  background-position: center;
+  box-shadow: 0 8px 14px 0 rgba(0, 0, 0, 0.05);
+  background-color: black;
+}
+
+.pin:hover {
+  cursor: pointer;
+}
