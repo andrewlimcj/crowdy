@@ -16,7 +16,7 @@ export default class GoogleMap {
     category: string, latitude: string, longitude: string, zoom?: string,
   ) {
     try {
-      const url = `${GOOGLE_URL}/maps/search/${category}/@${latitude},${longitude}${(zoom) ? `,${zoom}` : ''}z/data=!3m1!4b1`;
+      const url = `${GOOGLE_URL}/maps/search/${encodeURIComponent(category)}/@${latitude},${longitude}${(zoom) ? `,${zoom}` : ''}z/data=!3m1!4b1`;
       const categorySearch = await axios(url);
 
 
