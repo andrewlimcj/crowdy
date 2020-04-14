@@ -12,11 +12,19 @@ const replaceAll = (str: string, searchStr: string, replaceStr: string) => {
 
 
 export default class GoogleMap {
+  static validParams(category: string, latitude: number, longitude: number, zoom: number) {
+    if (!(category.length !== 0 && latitude >= -90 && latitude <= 90
+      && longitude >= -180 && longitude <= 180 && zoom !== NaN)) {
+      throw new Error('invalid params');
+    }
+  }
+
   static async getLocationInfoList(
-    category: string, latitude: string, longitude: string, zoom?: string,
+    category: string, latitude: number, longitude: number, zoom: number = 15,
   ) {
     try {
-      const url = `${GOOGLE_URL}/maps/search/${category}/@${latitude},${longitude}${(zoom) ? `,${zoom}` : ''}z/data=!3m1!4b1`;
+      GoogleMap.validParams(category, latitude, longitude, zoom);
+      const url = `${GOOGLE_URL}/maps/search/${category}/@${latitude},${longitude},${zoom}z?hl=en`;
       const categorySearch = await axios(url);
 
 
@@ -41,7 +49,7 @@ export default class GoogleMap {
       return result;
     } catch (error) {
       log.error(`[-] failed to get location list - ${error}`);
-      return {};
+      throw error;
     }
   }
 
@@ -102,7 +110,7 @@ export default class GoogleMap {
     let live = false;
     const allStatus = [];
     try {
-      const url = `${GOOGLE_URL}/search?tbm=map&tch=1&q=${encodeURIComponent(address)}&hl=en `;
+      const url = `${GOOGLE_URL}/search?tbm=map&tch=1&q=${encodeURIComponent(address)}&hl=en`;
       const placeSearchRes = await axios(url);
       const jsonBody = JSON.parse(placeSearchRes.data.replace('/*""*/', '')).d.replace(")]}'", '');
 

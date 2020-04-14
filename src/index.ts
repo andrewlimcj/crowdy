@@ -1,11 +1,13 @@
 import express from 'express';
 import http from 'http';
 import path from 'path';
+import YAML from 'yamljs';
+import swaggerUi from 'swagger-ui-express';
 import GoogleMap from './util/googleMap';
 import Logger from './common/logger';
 
+const swaggerDocument = YAML.load('./swagger.yaml');
 const log = Logger.createLogger('index');
-
 const app = express();
 const server = new http.Server(app);
 
@@ -17,29 +19,30 @@ app.get('/api/health', (req, res) => {
 });
 
 app.get('/api/locations', async (req, res) => {
-  const latitude = String(req.query.latitude);
-  const longitude = String(req.query.longitude);
+  const latitude = Number(req.query.latitude);
+  const longitude = Number(req.query.longitude);
   const category = String(req.query.category);
-  const zoom = String(req.query.zoom);
+  const zoom = Number(req.query.zoom);
 
   try {
     const locationInfoList = await GoogleMap.getLocationInfoList(
       category, latitude, longitude, zoom,
     );
-
-    log.debug(JSON.stringify(locationInfoList[0]));
-    res.send({ locationInfoList });
+    res.send({ statusCode: '0', locationInfoList });
   } catch (error) {
     log.error(`[-] failed </api/locations> - ${error}`);
     res.send({ statusCode: '-1' });
   }
 });
 
+app.use('/api_docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
 // The "catchall" handler: for any request that doesn't
 // match one above, send back React's index.html file.
-app.get('*', (_, res) => {
+app.get('/sasd', (_, res) => {
   res.sendFile(path.join('/client/build/index.html'));
 });
+
 
 const port = process.env.PORT || 5000;
 server.listen(port, () => log.info(`Crowdy app listening on port ${port}!`));
