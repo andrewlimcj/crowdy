@@ -2,16 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import { usePosition } from 'use-position';
 import _ from 'lodash';
-import socketIOClient from "socket.io-client";
 
 // material-ui
 import AppBar from '@material-ui/core/AppBar';
 import Button from '@material-ui/core/Button';
 import PersonPinIcon from '@material-ui/icons/PersonPin';
 import GitHubIcon from '@material-ui/icons/GitHub';
-import Card from '@material-ui/core/Card';
-import CardActions from '@material-ui/core/CardActions';
-import CardContent from '@material-ui/core/CardContent';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Grid from '@material-ui/core/Grid';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -19,34 +15,21 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import Link from '@material-ui/core/Link';
-import Box from '@material-ui/core/Box';
-import Chip from '@material-ui/core/Chip';
-import WhereToVoteIcon from '@material-ui/icons/WhereToVote';
 import LinearProgress from '@material-ui/core/LinearProgress';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import Avatar from '@material-ui/core/Avatar';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemAvatar from '@material-ui/core/ListItemAvatar';
-import ListItemText from '@material-ui/core/ListItemText';
-import Dialog from '@material-ui/core/Dialog';
-import LocationOnIcon from '@material-ui/icons/LocationOn';
-import PeopleIcon from '@material-ui/icons/People';
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
-import LinkedInIcon from '@material-ui/icons/LinkedIn';
-import LocalGroceryStoreIcon from '@material-ui/icons/LocalGroceryStore';
-import LocalMallIcon from '@material-ui/icons/LocalMall';
-import Tooltip from '@material-ui/core/Tooltip';
+import TextField from '@material-ui/core/TextField';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
+
+import Map from "./components/Map";
 
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
       {'Copyright © '}
-        Crowdy
-      {' '}
       {new Date().getFullYear()}
-      {'.'}
+      {' Common Computer Inc.'}
     </Typography>
   );
 }
@@ -89,39 +72,86 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-function SortDialog(props) {
-  const classes = useStyles();
-  const { onClose, selectedValue, open } = props;
+const categories = [
+  {val: 0, name: 'Supermarket'},
+  {val: 1, name: 'Shopping Mall'},
+  {val: 2, name: 'Restaurant'},
+  {val: 3, name: 'Cafe'},
+  {val: 4, name: 'Hospital'},
+  {val: 5, name: 'Pharmacy'},
+  {val: 6, name: 'Bank'}
+];
+
+const days = [
+  {val: -1, name: 'Live Data'},
+  {val: 0, name: 'Sunday'},
+  {val: 1, name: 'Monday'},
+  {val: 2, name: 'Tuesday'},
+  {val: 3, name: 'Wednesday'},
+  {val: 4, name: 'Thursday'},
+  {val: 5, name: 'Friday'},
+  {val: 6, name: 'Saturday'}
+];
+
+const times = [
+  {val: -1, name: 'Historic Avg'},
+  {val: 0, name: '12 AM'},
+  {val: 1, name: '1 AM'},
+  {val: 2, name: '2 AM'},
+  {val: 3, name: '3 AM'},
+  {val: 4, name: '4 AM'},
+  {val: 5, name: '5 AM'},
+  {val: 6, name: '6 AM'},
+  {val: 7, name: '7 AM'},
+  {val: 8, name: '8 AM'},
+  {val: 9, name: '9 AM'},
+  {val: 10, name: '10 AM'},
+  {val: 11, name: '11 AM'},
+  {val: 12, name: '12 PM'},
+  {val: 13, name: '1 PM'},
+  {val: 14, name: '2 PM'},
+  {val: 15, name: '3 PM'},
+  {val: 16, name: '4 PM'},
+  {val: 17, name: '5 PM'},
+  {val: 18, name: '6 PM'},
+  {val: 19, name: '7 PM'},
+  {val: 20, name: '8 PM'},
+  {val: 21, name: '9 PM'},
+  {val: 22, name: '10 PM'},
+  {val: 23, name: '11 PM'}
+];
+
+function TimeMenu(props) {
+  const { anchorEl, handleCloseTimeMenu, handleCloseDayMenu } = props;
 
   const handleClose = () => {
-    onClose(selectedValue);
+    handleCloseTimeMenu();
   };
 
-  const handleListItemClick = (value) => {
-    onClose(value);
+  const handleListItemClick = (event) => {
+    handleCloseTimeMenu(event);
+    handleCloseDayMenu();
   };
 
   return (
-    <Dialog fullWidth={true} onClose={handleClose} open={open}>
-      <List>
-        <ListItem button onClick={() => handleListItemClick('distance')}>
-          <ListItemAvatar>
-            <Avatar className={classes.avatar}>
-              <LocationOnIcon />
-            </Avatar>
-          </ListItemAvatar>
-          <ListItemText primary="Distance" />
-        </ListItem>
-        <ListItem button onClick={() => handleListItemClick('crowd')}>
-          <ListItemAvatar>
-            <Avatar className={classes.avatar}>
-              <PeopleIcon />
-            </Avatar>
-          </ListItemAvatar>
-          <ListItemText primary="Crowd" />
-        </ListItem>
-      </List>
-    </Dialog>
+    <Menu
+      id="time-menu"
+      anchorEl={anchorEl}
+      keepMounted
+      open={Boolean(anchorEl)}
+      onClose={handleClose}
+      style={{left: '110px', height: '600px'}}
+    >
+      {times.map((item, index) => 
+        <MenuItem
+          key={index}
+          value={item.val}
+          onClick={handleListItemClick}
+        >
+          {item.name}
+        </MenuItem>
+      )}
+    </Menu>
   );
 }
 
@@ -160,15 +190,14 @@ const getDirectionsUrl = (location) => {
   return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(location.address)}`;
 }
 
-const getLocations = (category, latitude, longitude) => {
+const getLocations = (category, latitude, longitude, zoom) => {
+  console.log('\nCATEGORYYYYY',category,'\n')
   return new Promise((resolve, reject) => {
-    fetch(`/api/locations?category=${category}&latitude=${latitude}&longitude=${longitude}`)
+    fetch(`/api/locations?category=${category}&latitude=${latitude}&longitude=${longitude}&zoom=${zoom}`)
       .then(res => res.json())
       .then(locations => resolve(locations));
   });
 }
-
-const socket = socketIOClient(process.env.NODE_ENV === "development" ? "http://localhost:5000" : "https://crowdy-2020.herokuapp.com");
 
 export default function App() {
   const classes = useStyles();
@@ -186,103 +215,129 @@ export default function App() {
     'Usually as busy as it gets': '#f998a5'
   };
 
+  const [loading, setLoading] = useState(true);
   const [data, setData] = useState({ locations: [] });
-
   const { latitude, longitude, error } = usePosition(true);
+  const [mapCoords, setMapCoords] = useState({lat: latitude, lng: longitude});
+  const [zoom, setZoom] = useState(0);
 
-  const [stats, setStats] = useState({ numUsers: 0 });
-
-  socket.on('numUsers', function (data) {
-    setStats(data);
-  });
-
-  // for dialog
-  const [sort, setSort] = useState('distance');
-
-  const [open, setOpen] = React.useState(false);
-
-  const handleClickOpen = () => {
-    setOpen(true);
+  const handleChangeCategory = (event) => {
+    setCategory(event.target.value);
+    setCategoryAnchorEl(null);
   }
 
-  const handleClose = (value) => {
-    setOpen(false);
-
-    if (sort !== value) {
-      setSort(value);
-      setData({ locations: [] });
+  const handleChangeDay = (event) => {
+    setDay(event.target.value);
+    if (event.target.value > -1) {
+      setTimeAnchorEl(event.currentTarget);
+    } else {
+      handleCloseDayMenu();
     }
-  };
+  }
+
+  const handleSearch = async () => {
+    const query = searchText;
+    setSearchText('');
+    const result = await getLocations(query);
+    if (!result) return;
+    const data = {
+      locations: _.uniqBy(result.locationInfoList, 'name')
+    };
+    setData(data);
+  }
+
+  const handleChangeText = (event) => {
+    setSearchText(event.target.value);
+  }
+
+  const handleCloseCategoryMenu = (event) => {
+    setCategoryAnchorEl(null);
+  }
+
+  const handleCloseDayMenu = (event) => {
+    setDayAnchorEl(null);
+  }
+
+  const handleCloseTimeMenu = (event) => {
+    setTimeAnchorEl(null);
+    if (event && event.target) {
+      setTime(event.target.value);
+    }
+    console.log("current day and time:", day, time)
+  }
 
   // for snackbar 
   const [snackbarOpen, setSnackbarOpen] = React.useState(false);
 
-  // for category
-  const [category, setCategory] = useState('Supermarkets');
+  const [searchText, setSearchText] = useState('');
 
-  const handleCategoryClick = (value) => {
-    if (category !== value) {
-      setCategory(value);
-      setData({ locations: [] });
-    }
-  };
+  // for category
+  const [category, setCategory] = useState(0);
+  const [day, setDay] = useState(-1);
+  const [time, setTime] = useState(-1);
+  const [categoryAnchorEl, setCategoryAnchorEl] = useState(null);
+  const [dayAnchorEl, setDayAnchorEl] = useState(null);
+  const [timeAnchorEl, setTimeAnchorEl] = useState(null);
 
   useEffect(() => {
-    if (latitude && longitude) {
-      const fetchData = async () => {
-        const promises = [];
-
-        if (category === 'Supermarkets') {
-          promises.push(getLocations('Supermarket', latitude, longitude));
-          promises.push(getLocations('Grocery store', latitude, longitude));
-        } else if (category === 'Shopping Malls') {
-          promises.push(getLocations('Shopping mall', latitude, longitude));
-        }
-
-        const result = await Promise.all(promises);
-        const data = {
-          locations: result[0].locations
-        };
-
-        if (result[1]) {
-          data.locations = data.locations.concat(result[1].locations);
-        }
-
-        // remove duplicates
-        data.locations = _.uniqBy(data.locations, 'name');
-
-        const statusWeightage = {
-          'Not busy': 1,
-          'Not too busy': 2,
-          'Less busy than usual': 2,
-          'A little busy': 3,
-          'As busy as it gets': 4,
-          'Busier than usual': 4,
-          'Usually not busy': 1.5,
-          'Usually not too busy': 2.5,
-          'Usually a little busy': 3.5,
-          'Usually as busy as it gets': 4.5,
-          'No popular times data': 5
-        };
-
-        if (sort === 'distance') {
-          data.locations = _.sortBy(data.locations, ['distanceRaw']);
-        } else if (sort === 'crowd') {
-          data.locations = _.sortBy(data.locations, [(location) => {
-            return statusWeightage[location.status];
-          }, 'distanceRaw']);
-        }
-
-        setData(data);
+    const fetchData = async () => {
+      const promises = [];
+      promises.push(getLocations(categories[category].name, mapCoords.lat, mapCoords.lng, zoom));
+      if (category === 0) {
+        promises.push(getLocations('Grocery store', mapCoords.lat, mapCoords.lng, zoom));
+      }
+      const result = await Promise.all(promises);
+      if (!result || !result.length) {
+        return; // setData({ locations: [] }) ?
+      }
+      const data = {
+        locations: result[0].locationInfoList
       };
 
-      fetchData();
-    } else {
-      if (error === 'User denied Geolocation') {
-        setSnackbarOpen(true);
+      if (result[1]) {
+        data.locations = data.locations.concat(result[1].locationInfoList);
       }
-    }
-  }, [latitude, longitude, error, sort, category]);
+
+      // remove duplicates
+      data.locations = _.uniqBy(data.locations, 'name');
+
+      setData(data);
+    };
+
+    fetchData();
+  }, [category]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const promises = [];
+      promises.push(getLocations(categories[category].name, mapCoords.lat, mapCoords.lng, zoom));
+      if (category === 0) {
+        promises.push(getLocations('Grocery store', latitude, longitude));
+      }
+      const result = await Promise.all(promises);
+      console.log("result:",result)
+      if (!result || !result.length) {
+        return; // setData({ locations: [] }) ?
+      }
+      const data = {
+        locations: result[0].locationInfoList
+      };
+
+      if (result[1]) {
+        data.locations = data.locations.concat(result[1].locationInfoList);
+      }
+
+      // remove duplicates
+      data.locations = _.uniqBy(data.locations, 'name');
+
+      setData(data);
+    };
+    fetchData();
+  }, [mapCoords]);
+
+  useEffect(() => {
+    // TODO(lia): select only the places that have the time data
+  }, [time]);
 
   return (
     <React.Fragment>
@@ -298,122 +353,115 @@ export default function App() {
       <main>
         {/* Hero unit */}
         <div className={classes.heroContent}>
-          <Container maxWidth="sm">
-            <Typography component="h1" variant="h2" align="center" color="textPrimary" gutterBottom>
-              Crowdy
-            </Typography>
-            <Typography variant="h5" align="center" color="textSecondary" paragraph>
+          <Container maxWidth="md">
+            <Typography component="h1" variant="h2" align="left" color="textPrimary" paragraph>
               Find supermarkets near you that are not crowded!
               Based on <Link color="primary" href="https://support.google.com/business/answer/6263531?hl=en">popular times data*</Link> from Google Maps
             </Typography>
-            <Typography variant="subtitle1" align="center" color="textSecondary" paragraph>
+            <Typography variant="subtitle1" align="left" color="textSecondary" paragraph>
               * Data might not be 100% accurate as it is obtained via web scraping
             </Typography>
-            <Typography variant="subtitle1" align="center" color="textSecondary" paragraph>
-              ** <span style={{ color: "#f6546a" }}><b>LIVE</b></span> - Live visit data;{' '}
-              <span style={{ color: "#66cdaa" }}><b>Green</b></span> - Not busy;{' '}
-              <span style={{ color: "#ffa500" }}><b>Orange</b></span> - Slightly busy;{' '}
-              <span style={{ color: "#f998a5" }}><b>Red</b></span> - Very busy;{' '}
-              <span><b>Grey</b></span> - No data
-            </Typography>
-            <div className={classes.heroButtons}>
-              <Grid container spacing={3} direction="column">
-                <Grid item>
-                  <Grid container spacing={2} justify="center">
-                    <Grid item>
-                      <Tooltip title="Supermarkets">
-                        <Avatar className={category === "Supermarkets" ? classes.categoryActive : classes.categoryDefault} onClick={() => { handleCategoryClick("Supermarkets") }}>
-                          <LocalGroceryStoreIcon />
-                        </Avatar>
-                      </Tooltip>
-                    </Grid>
-                    <Grid item>
-                      <Tooltip title="Shopping Malls">
-                        <Avatar className={category === "Shopping Malls" ? classes.categoryActive : classes.categoryDefault} onClick={() => { handleCategoryClick("Shopping Malls") }}>
-                          <LocalMallIcon />
-                        </Avatar>
-                      </Tooltip>
-                    </Grid>
-                  </Grid>
-                </Grid>
-                <Grid item>
-                  <Grid container spacing={2} justify="center">
-                    <Grid item>
-                      <Button variant="outlined" color="primary" endIcon={<ExpandMoreIcon />} onClick={handleClickOpen}>
-                        Sort By: {sort}
-                      </Button>
-                    </Grid>
-                  </Grid>
-                </Grid>
-              </Grid>
-              <SortDialog selectedValue={sort} open={open} onClose={handleClose} />
-              <LocationSnackbar snackbarOpen={snackbarOpen} setSnackbarOpen={setSnackbarOpen} />
-            </div>
+            <LocationSnackbar snackbarOpen={snackbarOpen} setSnackbarOpen={setSnackbarOpen} />
           </Container>
         </div>
         <Container className={classes.cardGrid} maxWidth="md">
-          {data.locations.length === 0 && error === null && <LinearProgress />}
-          {/* End hero unit */}
-          <Grid container spacing={4}>
-            {data.locations.map((location, index) => (
-              <Grid item key={index} xs={12} sm={6} md={4}>
-                <Card className={classes.card}>
-                  <CardContent className={classes.cardContent}>
-                    <Typography gutterBottom variant="h5" component="h2">
-                      {location.name}
-                    </Typography>
-                    {location.live && <Chip color="secondary" style={{ fontWeight: "bold" }} icon={<WhereToVoteIcon />} label="LIVE" />}{' '}
-                    <Chip style={{ backgroundColor: statusMappings[location.status] }} label={location.status} />
-                    <Typography variant="subtitle2">
-                      <Box fontStyle="italic" paddingTop={1} fontWeight="fontWeightRegular">
-                        ~{location.distance}
-                      </Box>
-                    </Typography>
-                    <Typography variant="subtitle2">
-                      <Box fontStyle="italic" fontWeight="fontWeightLight">
-                        {location.address}
-                      </Box>
-                    </Typography>
-                  </CardContent>
-                  <CardActions>
-                    <Button size="small" color="primary" href={getViewUrl(location)}>
-                      View
-                    </Button>
-                    <Button size="small" color="primary" href={getDirectionsUrl(location)}>
-                      Directions
-                    </Button>
-                  </CardActions>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
+          {loading && <LinearProgress />}
+          {/* End hero unit */} 
+          <div style={{display: 'flex', flexDirection: 'column'}}>
+            <div style={{display: 'flex', flexDirection: 'row'}}>
+              <TextField
+                style={{display: 'flex', flex: 5}}
+                hintText='Search...'
+                variant="outlined"
+                value={searchText}
+                onChange={handleChangeText}
+                onKeyPress={(event) => {
+                  if (event.key === 'Enter') {
+                      handleSearch();
+                      event.preventDefault();      
+                  }
+                }}
+              />
+              <Button style={{display: 'flex', flex: 1}} onClick={handleSearch}>
+                Search
+              </Button>
+            </div>
+            <div style={{display: 'flex', flexDirection: 'row', width: '100%', justifyContent: 'space-between'}}>
+              <div style={{display: 'flex', flexDirection: 'row'}}>
+                <Button
+                  aria-controls="simple-menu" aria-haspopup="true" onClick={(event) => setCategoryAnchorEl(event.currentTarget)}
+                >
+                  Select Category
+                </Button>
+                <Menu
+                  id="select-category"
+                  displayEmpty
+                  inputProps={{ 'aria-label': 'Without label' }}
+                  onClose={handleCloseCategoryMenu}
+                  open={Boolean(categoryAnchorEl)}
+                  anchorEl={categoryAnchorEl}
+                >
+                  {categories.map((item, index) => 
+                    <MenuItem onClick={handleChangeCategory} value={item.val}>{item.name}</MenuItem>
+                  )}
+                </Menu>
+                
+                <Button
+                  aria-controls="simple-menu" aria-haspopup="true" onClick={(event) => setDayAnchorEl(event.currentTarget)}
+                >
+                  When
+                </Button>
+                <Menu
+                  id="day-menu"
+                  keepMounted
+                  open={Boolean(dayAnchorEl)}
+                  onClose={handleCloseDayMenu}
+                  anchorEl={dayAnchorEl}
+                >
+                  {days.map((item, index) => 
+                    <MenuItem key={index} onClick={handleChangeDay} value={item.val}>{item.name}</MenuItem>
+                  )}
+                </Menu>
+
+                <TimeMenu
+                  anchorEl={timeAnchorEl}
+                  onClose={() => setTimeAnchorEl(null)}
+                  handleCloseTimeMenu={handleCloseTimeMenu}
+                  handleCloseDayMenu={handleCloseDayMenu}
+                />
+              </div>
+              <Button>
+                Exclude no time data
+              </Button>
+            </div>
+          </div>
+          <Map
+            data={data}
+            userGps={{latitude, longitude}}
+            setZoom={setZoom}
+            setMapCoords={setMapCoords}
+            loading={loading}
+            setLoading={setLoading}
+          />
         </Container>
       </main>
       {/* Footer */}
       <footer className={classes.footer}>
-        <Grid container direction="row" justify="center">
-          <Grid item>
-            <Link color="inherit" href="https://www.linkedin.com/in/andrewlcja">
-              <LinkedInIcon className={classes.icon} />
-            </Link>
+        <Grid container direction="row" justify="space-between">
+          <Grid container style={{maxWidth: '300px'}} direction="row">
+            <Grid item>
+              <Link color="inherit" href="https://ainize.ai">
+                POWERED BY AINIZE
+              </Link>
+            </Grid>
+            <Grid item style={{marginLeft: '16px'}}>
+              <Link color="inherit" href="https://github.com/liayoo/crowdy">
+                VISIT GITHUB
+              </Link>
+            </Grid>
           </Grid>
-          <Grid item>
-            <Link color="inherit" href="https://github.com/andrewlimcj/crowdy">
-              <GitHubIcon className={classes.icon} />
-            </Link>
-          </Grid>
-          <Grid item>
-            <Typography variant="subtitle1" align="center" color="textSecondary" component="p">
-              {stats.numUsers} user(s) online
-            </Typography>
-          </Grid>
+          <Copyright />
         </Grid>
-        <Typography variant="subtitle1" align="center" color="textSecondary" component="p">
-          <Link color="inherit" href="https://covid-global-hackathon.devpost.com/">
-            #BuildforCOVID19 Global Online Hackathon
-          </Link>
-        </Typography>
-        <Copyright />
       </footer>
       {/* End footer */}
     </React.Fragment>
