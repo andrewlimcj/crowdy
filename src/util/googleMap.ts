@@ -24,9 +24,8 @@ export default class GoogleMap {
   ) {
     try {
       GoogleMap.validParams(category, latitude, longitude, zoom);
-      const url = `${GOOGLE_URL}/maps/search/${category}/@${latitude},${longitude},${zoom}z?hl=en`;
+      const url = encodeURI(`${GOOGLE_URL}/maps/search/${category}/@${latitude},${longitude},${zoom}z?hl=en`);
       const categorySearch = await axios(url);
-
 
       // Get Name, Address, Latitude, Longitude
       const parseResult = GoogleMap.parseBody(categorySearch.data);

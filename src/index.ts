@@ -35,11 +35,11 @@ app.get('/api/locations', async (req, res) => {
   }
 });
 
-app.use('/api_docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // The "catchall" handler: for any request that doesn't
 // match one above, send back React's index.html file.
-app.get('/sasd', (_, res) => {
+app.get('*', (_, res) => {
   res.sendFile(path.join('/client/build/index.html'));
 });
 
