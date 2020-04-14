@@ -22,7 +22,7 @@ module.exports = {
   'rules': {
     'no-restricted-syntax': 0,
     'import/no-unresolved': 0,
-    'no-underscore-dangle': 0,
+    'use-isnan': 0,
     'max-classes-per-file': 0,
     'no-unused-vars': 0,
     'guard-for-in': 0,
