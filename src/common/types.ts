@@ -7,7 +7,7 @@ export type locationInfo = {
   link: string,
   phonenumber?: string,
   live: boolean,
-  allStatus: timeStatus[] | [],
+  allStatus: any,
   // 0: Sunday, 6: Saturday (index)
 }
 
