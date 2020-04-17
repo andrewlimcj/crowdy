@@ -1,5 +1,5 @@
 // core
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { usePosition } from "use-position";
 import _ from "lodash";
 
@@ -193,7 +193,6 @@ const getDirectionsUrl = (location) => {
 };
 
 const getLocations = (category, latitude, longitude, zoom) => {
-  console.log("\nCATEGORYYYYY", category, "\n");
   return new Promise((resolve, reject) => {
     fetch(
       `/api/locations?category=${category}&latitude=${latitude}&longitude=${longitude}&zoom=${zoom}`
@@ -221,12 +220,12 @@ export default function App() {
 
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState({ locations: [] });
-  const { latitude, longitude, error } = usePosition(true);
-  const [mapCoords, setMapCoords] = useState({ lat: latitude, lng: longitude });
-  const [zoom, setZoom] = useState(0);
+  const { latitude, longitude, error } = usePosition(false);
+  const mapCoords = useRef({ lat: latitude, lng: longitude });
+  const zoom = useRef(0);
 
   const handleChangeCategory = (event) => {
-    setCategory(event.target.value);
+    category.current = event.target.value;
     setCategoryAnchorEl(null);
   };
 
@@ -242,10 +241,10 @@ export default function App() {
   const handleSearch = async () => {
     const query = searchText;
     setSearchText("");
-    const result = await getLocations(query);
+    const result = await getLocations(query, mapCoords.current.lat, mapCoords.current.lng);
     if (!result) return;
     const data = {
-      locations: _.uniqBy(result.locationInfoList, "name"),
+      locations: _.uniqBy(result.locationInfoList, (val) => val.longitude + ',' + val.latitude),
     };
     setData(data);
   };
@@ -274,13 +273,40 @@ export default function App() {
     setNoTimeData(!noTimeData);
   };
 
+  const handleMapCoordsChange = async () => {
+    console.log("MAP COORDS CHANGED:", mapCoords.current, categories[category.current])
+    if (!mapCoords.current.lat || !mapCoords.current.lng) return;
+    const promises = [];
+    promises.push(getLocations(categories[category.current].name, mapCoords.current.lat, mapCoords.current.lng, zoom.current));
+    if (category.current === 0) {
+      promises.push(getLocations('Grocery store', mapCoords.current.lat, mapCoords.current.lng, zoom.current));
+    }
+    const result = await Promise.all(promises);
+    console.log("map coords change result:",result)
+    if (!result || !result.length) {
+      return; // setData({ locations: [] }) ?
+    }
+    const data = {
+      locations: result[0].locationInfoList
+    };
+
+    if (result[1]) {
+      data.locations = data.locations.concat(result[1].locationInfoList);
+    }
+
+    // remove duplicates
+    data.locations = _.uniqBy(data.locations, (val) => val.longitude + ',' + val.latitude);
+
+    setData(data);
+  }
+
   // for snackbar
   const [snackbarOpen, setSnackbarOpen] = React.useState(false);
 
   const [searchText, setSearchText] = useState("");
 
   // for category
-  const [category, setCategory] = useState(0);
+  const category = useRef(1);
   const [day, setDay] = useState(-1);
   const [time, setTime] = useState(-1);
   const [categoryAnchorEl, setCategoryAnchorEl] = useState(null);
@@ -291,22 +317,32 @@ export default function App() {
   const [noTimeData, setNoTimeData] = useState(false);
 
   useEffect(() => {
+    console.log(`CATEGORY CHANGED TO ${category.current}.. (${JSON.stringify(mapCoords.current)})`);
+    if (!mapCoords.current.lat || !mapCoords.current.lng) {
+      return;
+    }
     const fetchData = async () => {
       const promises = [];
       promises.push(
         getLocations(
-          categories[category].name,
-          mapCoords.lat,
-          mapCoords.lng,
-          zoom
+          categories[category.current].name,
+          mapCoords.current.lat,
+          mapCoords.current.lng,
+          zoom.current
         )
       );
-      if (category === 0) {
+      if (category.current === 0) {
         promises.push(
-          getLocations("Grocery store", mapCoords.lat, mapCoords.lng, zoom)
+          getLocations(
+            "Grocery store",
+            mapCoords.current.lat,
+            mapCoords.current.lng,
+            zoom.current
+          )
         );
       }
       const result = await Promise.all(promises);
+      console.log(`CATEGORY AFTER: ${category.current}.. (${JSON.stringify(mapCoords.current)})`);
       if (!result || !result.length) {
         return; // setData({ locations: [] }) ?
       }
@@ -319,7 +355,7 @@ export default function App() {
       }
 
       // remove duplicates
-      data.locations = _.uniqBy(data.locations, "name");
+      data.locations = _.uniqBy(data.locations, (val) => val.longitude + ',' + val.latitude);
 
       // exclude "no time data"
       if (noTimeData) {
@@ -332,7 +368,7 @@ export default function App() {
     };
 
     fetchData();
-  }, [category, noTimeData]);
+  }, [category.current, noTimeData]);
 
   useEffect(() => {
     // TODO(lia): select only the places that have the time data
@@ -391,7 +427,7 @@ export default function App() {
             <div style={{ display: "flex", flexDirection: "row" }}>
               <TextField
                 style={{ display: "flex", flex: 5 }}
-                hintText="Search..."
+                hinttext="Search..."
                 variant="outlined"
                 value={searchText}
                 onChange={handleChangeText}
@@ -427,14 +463,12 @@ export default function App() {
                 </Button>
                 <Menu
                   id="select-category"
-                  displayEmpty
-                  inputProps={{ "aria-label": "Without label" }}
                   onClose={handleCloseCategoryMenu}
                   open={Boolean(categoryAnchorEl)}
                   anchorEl={categoryAnchorEl}
                 >
                   {categories.map((item, index) => (
-                    <MenuItem onClick={handleChangeCategory} value={item.val}>
+                    <MenuItem onClick={handleChangeCategory} value={item.val} key={index}>
                       {item.name}
                     </MenuItem>
                   ))}
@@ -478,10 +512,11 @@ export default function App() {
           <Map
             data={data}
             userGps={{ latitude, longitude }}
-            setZoom={setZoom}
-            setMapCoords={setMapCoords}
+            zoom={zoom}
+            mapCoords={mapCoords}
             loading={loading}
             setLoading={setLoading}
+            handleMapCoordsChange={handleMapCoordsChange}
           />
         </Container>
       </main>
