@@ -5,12 +5,6 @@ import * as types from '../common/types';
 const log = Logger.createLogger('util.googleMap');
 const GOOGLE_URL = 'https://www.google.com';
 
-const replaceAll = (str: string, searchStr: string, replaceStr: string) => {
-  const result = str.split(searchStr).join(replaceStr);
-  return result;
-};
-
-
 export default class GoogleMap {
   static validParams(category: string, latitude: number, longitude: number, zoom: number) {
     if (!(category.length !== 0 && latitude >= -90 && latitude <= 90
@@ -26,7 +20,6 @@ export default class GoogleMap {
       GoogleMap.validParams(category, latitude, longitude, zoom);
       const url = encodeURI(`${GOOGLE_URL}/maps/search/${category}/@${latitude},${longitude},${zoom}z?hl=en`);
       const categorySearch = await axios(url);
-
       // Get Name, Address, Latitude, Longitude
       const parseResult = GoogleMap.parseBody(categorySearch.data);
 
@@ -52,55 +45,35 @@ export default class GoogleMap {
     }
   }
 
-  static parseBody(bodyStr: string) {
-    // const categoryToken = `\\\",null,[\\\"${category}\\\"`;
-    const categoryToken = '\\",null,[\\"';
+  static parseBody(htmlBody: string) {
     const result = [];
-    let htmlBody = bodyStr;
+    const placeInfoList = htmlBody.split('Starred places').splice(1);
 
-    while (htmlBody.indexOf(categoryToken) !== -1) {
-      // to find name
-      const firstIndex = htmlBody.indexOf(categoryToken);
-      const secondIndex = htmlBody.lastIndexOf('"', firstIndex);
+    for (const placeInfo of placeInfoList) {
+      const addressIdx = placeInfo.indexOf('\\n]\\n]\\n,[2,[[\\"') + '\\n]\\n]\\n,[2,[[\\"'.length;
+      const address = placeInfo.substring(addressIdx, placeInfo.indexOf('\\', addressIdx));
 
-      // to find address
-      const thirdIndex = htmlBody.indexOf('null,null,null,', firstIndex);
-      const fourthIndex = htmlBody.indexOf('\\",', thirdIndex);
-      // to find lat, long
-      const fifthIndex = htmlBody.lastIndexOf('[', firstIndex);
-      const sixthIndex = htmlBody.lastIndexOf(']', firstIndex);
+      const phoneNumberIdx = placeInfo.indexOf(']\\n,null,[[\\"') + ']\\n,null,[[\\"'.length;
+      const phoneNumber = placeInfo.substring(phoneNumberIdx, placeInfo.indexOf('\\', phoneNumberIdx));
 
-      const coordinates = htmlBody.substring(fifthIndex + 1, sixthIndex).split(',').splice(2, 4);
+      const nameIdx = placeInfo.indexOf('[[[7,[[\\"') + '[[[7,[[\\"'.length;
+      const name = placeInfo.substring(nameIdx, placeInfo.indexOf('\\', nameIdx));
 
-      const name = htmlBody.substring(secondIndex + 1, firstIndex);
-      const address = htmlBody.substring(thirdIndex + 22, fourthIndex);
+      const coordinateIdx = placeInfo.indexOf('\\n]\\n,null,[[3.0,') + '\\n]\\n,null,[[3.0,'.length;
+      // locations[0]: longitude  , locations[1]: latitude
+      const coordinate = placeInfo.substring(coordinateIdx, placeInfo.indexOf(']', coordinateIdx)).split(',');
+      const link = `${GOOGLE_URL}/maps/search/${address}/@${coordinate[1]},${coordinate[0]},${15}z`;
 
-      const link = `${GOOGLE_URL}/maps/search/${address}/@${coordinates[0]},${coordinates[1]},${15}z`;
-
-      // get Phone Number
-      let searchStr = address.replace(name, '');
-      searchStr = searchStr.slice(0, searchStr.length - 1);
-      const tempIdx = htmlBody.indexOf(searchStr);
-      const phoneNumberIdx = htmlBody.indexOf('[\\"', tempIdx) + 3;
-      const phoneNumberEndIdx = htmlBody.indexOf('\\', phoneNumberIdx);
-      const phoneNumber = htmlBody.substring(phoneNumberIdx, phoneNumberEndIdx);
-      if (/\d{2,3}-\d{3,4}-\d{4}/g.test(phoneNumber)) {
-        htmlBody = replaceAll(htmlBody, phoneNumber, '');
-      }
       result.push({
         name,
         address,
-        latitude: coordinates[0],
-        longitude: coordinates[1],
+        latitude: coordinate[1],
+        longitude: coordinate[0],
         link,
         phoneNumber: (/\d{2,3}-\d{3,4}-\d{4}/g.test(phoneNumber)) ? phoneNumber : undefined,
       });
-      htmlBody = htmlBody.replace(categoryToken, '');
-      // replace again to remove contact number (TODO: improve this hardcoded part)
-      if (htmlBody.substring(htmlBody.indexOf(categoryToken) + 11, htmlBody.indexOf(categoryToken) + 15) === 'tel:') {
-        htmlBody = htmlBody.replace(categoryToken, '');
-      }
     }
+
     return result;
   }
 
@@ -118,14 +91,16 @@ export default class GoogleMap {
         throw new Error('not exists');
       }
       for (const info of statusList[0]) {
+        const subStatus = [];
         if (info && info[1]) {
           for (const time of info[1]) {
-            allStatus.push({
+            subStatus.push({
               time: time[0],
               status: time[2],
             });
           }
         }
+        allStatus.push(subStatus);
       }
       live = (statusList[6].indexOf('Now: ') === -1 && statusList[6] !== 'No popular times data');
       nowStatus = statusList[6].replace('Now: ', '');
