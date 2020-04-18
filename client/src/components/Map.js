@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { point, center, featureCollection, distance } from '@turf/turf';
 import getInfoFromNowStatus from '../getInfoFromNowStatus';
+import { debounce } from 'lodash';
 
 import '../styles/map.css';
 
@@ -12,62 +13,64 @@ const getDirectionsUrl = (addr) => {
 export const Map = ({
   data,
   userGps,
-  setZoom,
-  setMapCoords,
+  zoom,
+  mapCoords,
   loading,
-  setLoading
+  setLoading,
+  handleMapCoordsChange,
 }) => {
   const initialZoom = 12.9;
-  const moveThreshold = 0.01;
-  const [markers, setMarkers] = useState([]);
+  const markers = useRef([]);
   const mapRef = useRef(null);
-  const initialCoordsRef = useRef(null);
+  const mapContainerRef = useRef(null);
 
-  const mapContainerRef = useCallback(ref => {
-    if (!ref || !userGps.latitude || !userGps.longitude || mapRef.current) return;
+  const moveEndHandler = (event) => {
+    const coords = mapRef.current.getCenter();
+    mapCoords.current = { lat: coords.lat.toFixed(6), lng: coords.lng.toFixed(6) };
+    zoom.current = mapRef.current.getZoom().toFixed(2);
+    if (!event.originalEvent) {
+      // ignore moveend events triggered by 'flyTo' or 'fitBounds'
+      return;
+    } else {
+      handleMapCoordsChange();
+    }
+  }
+
+  const debounceMoveEndHandler = debounce(moveEndHandler, 3000, { leading: false, trailing: true });
+
+  useEffect(() => {
+    if (!userGps.latitude || !userGps.longitude || mapRef.current || !mapContainerRef.current) return;
     mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
     mapRef.current = new mapboxgl.Map({
-      container: ref,
+      container: mapContainerRef.current,
       style: 'mapbox://styles/mapbox/streets-v11',
       center: [userGps.longitude, userGps.latitude],
       zoom: initialZoom
     });
     const map = mapRef.current;
-    initialCoordsRef.current = map.getCenter();
-    setMapCoords({ lat: initialCoordsRef.current.lat.toFixed(), lng: initialCoordsRef.current.lng.toFixed(6) });
+    const coords = map.getCenter();
+    mapCoords.current = { lat: coords.lat.toFixed(6), lng: coords.lng.toFixed(6) };
+    zoom.current = map.getZoom().toFixed(2);
     map.on('load', () => {
       if (loading) {
         setLoading(false);
       }
     });
-    map.on('mousedown', () => {
-      console.log("MOUSEDOWN!", initialCoordsRef.current)
-      if (!initialCoordsRef.current) {
-        initialCoordsRef.current = map.getCenter();
-      }
-    });
-    map.on('moveend', () => {
-      const finalCoords = map.getCenter();
-      console.log("initialCoords:", initialCoordsRef.current, "finalCoords:", finalCoords);
-      if (initialCoordsRef.current && (Math.abs(finalCoords.lat - initialCoordsRef.current.lat) > moveThreshold ||
-          Math.abs(finalCoords.lng - initialCoordsRef.current.lng) > moveThreshold)) {
-        setMapCoords({ lat: map.getCenter().lat.toFixed(6), lng: map.getCenter().lng.toFixed(6) });
-        setZoom(map.getZoom().toFixed(2));
-      }
-      initialCoordsRef.current = null;
-    });
+    
+    map.on('moveend', debounceMoveEndHandler);
+
+    handleMapCoordsChange();
   }, [userGps]);
 
   useEffect(() => {
     if (!mapRef.current || !mapContainerRef) return;
-    markers.forEach(marker => {
+    markers.current.forEach(marker => {
       marker.remove();
     });
     const fromPoint = userGps.longitude && userGps.latitude ? point([ userGps.longitude, userGps.latitude ]) : null;
     const newMarkers = [];
     const turfPoints = [];
     for (let loc of data.locations) {
-      // console.log("adding..", loc)
       if (!isNaN(Number(loc.longitude)) && !isNaN(Number(loc.latitude))) {
         const lnglat = { lng: Number(loc.longitude), lat: Number(loc.latitude) };
         const toPoint = point([ lnglat.lng, lnglat.lat ]);
@@ -107,12 +110,13 @@ export const Map = ({
     }
     if (turfPoints.length > 0) {
       const newCenter = center(featureCollection(turfPoints));
+      
       mapRef.current.flyTo({
         center: newCenter.geometry.coordinates,
         speed: 0.5,
         curve: 0,
         essential: true
-      })
+      });
       const bounds = new mapboxgl.LngLatBounds();
       turfPoints.forEach(function(pt) {
         bounds.extend(pt.geometry.coordinates);
@@ -120,7 +124,7 @@ export const Map = ({
       mapRef.current.fitBounds(bounds, { padding: 100 });
     }
     
-    setMarkers(newMarkers);
+    markers.current = newMarkers;
   }, [data]);
 
   const wrapperStyle = {
