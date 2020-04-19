@@ -5,6 +5,7 @@ export type locationInfo = {
   longitude: string,
   nowStatus: string,
   link: string,
+  directions: string,
   phonenumber?: string,
   live: boolean,
   allStatus: any,

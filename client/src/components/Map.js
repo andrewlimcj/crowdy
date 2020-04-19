@@ -6,10 +6,6 @@ import { debounce } from 'lodash';
 
 import '../styles/map.css';
 
-const getDirectionsUrl = (addr) => {
-  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(addr)}`;
-}
-
 export const Map = ({
   data,
   day,
@@ -78,7 +74,6 @@ export const Map = ({
         const toPoint = point([ lnglat.lng, lnglat.lat ]);
         turfPoints.push(toPoint);
         loc.distance = fromPoint ? Number(distance(fromPoint, toPoint)).toFixed(4) : '?';
-        loc.directions = getDirectionsUrl(loc.address);
         let statusStr = '';
         if (day === -1) {
           statusStr = loc.nowStatus;

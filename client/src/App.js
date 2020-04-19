@@ -152,16 +152,6 @@ function LocationSnackbar(props) {
   );
 }
 
-const getViewUrl = (location) => {
-  return `https://maps.google.com/?q=${encodeURIComponent(location.address)}`;
-};
-
-const getDirectionsUrl = (location) => {
-  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
-    location.address
-  )}`;
-};
-
 const getLocations = (category, latitude, longitude, zoom) => {
   return new Promise((resolve, reject) => {
     fetch(
@@ -197,6 +187,18 @@ export default function App() {
   // filter no time data
   const [excludeNoTimeData, setExcludeNoTimeData] = useState(false);
 
+  useEffect(() => {
+    if (excludeNoTimeData) {
+      setData({ locations: filterDayTime(data.locations) });
+    } else {
+      setData({ locations: JSON.parse(JSON.stringify(allData.current)) });
+    }
+  }, [excludeNoTimeData]);
+
+  useEffect(() => {
+    setData({ locations: filterDayTime(allData.current) });
+  }, [day, time]);
+
   const handleChangeDay = (event) => {
     setDay(event.target.value);
     if (event.target.value === -1) {
@@ -208,8 +210,29 @@ export default function App() {
   };
 
   const handleChangeTime = (event) => {
-    setTime(event.target.value);
+    if (day === -1) {
+      alert("Please select the day of the week first and then set the time. " +
+        "Currently you're viewing the 'Live Data'. This setting can be changed in the 'Day' menu.")
+    } else {
+      setTime(event.target.value);
+      setTimeAnchorEl(null);
+    }
+  };
+
+  const handleChangeText = (event) => {
+    setSearchText(event.target.value);
+  };
+  
+  const handleCloseDayMenu = (event) => {
+    setDayAnchorEl(null);
+  };
+
+  const handleCloseTimeMenu = (event) => {
     setTimeAnchorEl(null);
+  };
+
+  const handleNoTimeData = () => {
+    setExcludeNoTimeData(!excludeNoTimeData);
   };
 
   const handleSearch = async () => {
@@ -229,65 +252,20 @@ export default function App() {
 
     // store non-filtered data
     allData.current = JSON.parse(JSON.stringify(data.locations));
-    console.log("allData:", allData.current);
 
     setData(data);
-  };
-
-  const handleChangeText = (event) => {
-    setSearchText(event.target.value);
-  };
-  
-  const handleCloseDayMenu = (event) => {
-    setDayAnchorEl(null);
-  };
-
-  const handleCloseTimeMenu = (event) => {
-    setTimeAnchorEl(null);
-  };
-
-  const handleNoTimeData = () => {
-    setExcludeNoTimeData(!excludeNoTimeData);
   };
 
   const handleMapCoordsChange = async () => {
-    console.log("MAP COORDS CHANGED:", mapCoords.current, categories[category.current])
-    if (!mapCoords.current.lat || !mapCoords.current.lng) return;
-    const promises = [];
-    promises.push(getLocations(categories[category.current].name, mapCoords.current.lat, mapCoords.current.lng, zoom.current));
-    if (category.current === 0) {
-      promises.push(getLocations('Grocery store', mapCoords.current.lat, mapCoords.current.lng, zoom.current));
-    }
-    const result = await Promise.all(promises);
-    console.log("map coords change result:",result)
-    if (!result || !result.length) {
-      return; // setData({ locations: [] }) ?
-    }
-    const data = {
-      locations: result[0].locationInfoList
-    };
-
-    if (result[1]) {
-      data.locations = data.locations.concat(result[1].locationInfoList);
-    }
-
-    // remove duplicates
-    data.locations = _.uniqBy(data.locations, (val) => val.longitude + ',' + val.latitude);
-
-    // store non-filtered data
-    allData.current = JSON.parse(JSON.stringify(data.locations));
-    console.log("allData:", allData.current);
-
-    // exclude "no time data" and filter by current day, time settings
-    if (excludeNoTimeData) {
-      data.locations = filterDayTime(data.locations);
-    }
-
-    setData(data);
+    await fetchAndFilterData();
   }
 
   const handleCategoryChange = async (val) => {
     category.current = val;
+    await fetchAndFilterData();
+  }
+
+  const fetchAndFilterData = async () => {
     if (!mapCoords.current.lat || !mapCoords.current.lng) {
       return;
     }
@@ -311,15 +289,14 @@ export default function App() {
       );
     }
     const result = await Promise.all(promises);
-    console.log(`CATEGORY AFTER: ${category.current}.. (${JSON.stringify(mapCoords.current)})`);
-    if (!result || !result.length) {
+    if (!result || !result.length || !result[0].locationInfoList) {
       return; // setData({ locations: [] }) ?
     }
 
     const data = { locations: result[0].locationInfoList };
 
     // concat "Grocery store"
-    if (result[1]) {
+    if (result[1] && result[1].locationInfoList) {
       data.locations = data.locations.concat(result[1].locationInfoList);
     }
 
@@ -328,7 +305,6 @@ export default function App() {
     
     // store non-filtered data
     allData.current = JSON.parse(JSON.stringify(data.locations));
-    console.log("allData:", allData.current);
 
     // exclude "no time data" and filter by current day, time settings
     if (excludeNoTimeData) {
@@ -339,7 +315,6 @@ export default function App() {
   }
 
   const filterDayTime = (data) => {
-    console.log("filtering day and time..", day, time, excludeNoTimeData);
     if (!excludeNoTimeData) return data;
     if (day === -1) {
       return _.filter(data, (loc) => loc.nowStatus !== "No popular times data");
@@ -357,20 +332,6 @@ export default function App() {
       });
     }
   }
-
-  useEffect(() => {
-    if (excludeNoTimeData) {
-      console.log(`excluding no time data.. (current allData: ${allData.current.length})`);
-      setData({ locations: filterDayTime(data.locations) });
-    } else {
-      console.log(`including no time data.. (current allData: ${allData.current.length})`, allData.current);
-      setData({ locations: JSON.parse(JSON.stringify(allData.current)) });
-    }
-  }, [excludeNoTimeData]);
-
-  useEffect(() => {
-    setData({ locations: filterDayTime(allData.current) });
-  }, [day, time]);
 
   return (
     <React.Fragment>
