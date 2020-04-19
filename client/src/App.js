@@ -94,7 +94,7 @@ const days = [
 ];
 
 const times = [
-  { val: -1, name: "Historic Avg" },
+  /*{ val: -1, name: "Historic Avg" },*/
   { val: 0, name: "12 AM" },
   { val: 1, name: "1 AM" },
   { val: 2, name: "2 AM" },
@@ -120,36 +120,6 @@ const times = [
   { val: 22, name: "10 PM" },
   { val: 23, name: "11 PM" },
 ];
-
-function TimeMenu(props) {
-  const { anchorEl, handleCloseTimeMenu, handleCloseDayMenu } = props;
-
-  const handleClose = () => {
-    handleCloseTimeMenu();
-  };
-
-  const handleListItemClick = (event) => {
-    handleCloseTimeMenu(event);
-    handleCloseDayMenu();
-  };
-
-  return (
-    <Menu
-      id="time-menu"
-      anchorEl={anchorEl}
-      keepMounted
-      open={Boolean(anchorEl)}
-      onClose={handleClose}
-      style={{ left: "110px", height: "600px" }}
-    >
-      {times.map((item, index) => (
-        <MenuItem key={index} value={item.val} onClick={handleListItemClick}>
-          {item.name}
-        </MenuItem>
-      ))}
-    </Menu>
-  );
-}
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -205,72 +175,79 @@ const getLocations = (category, latitude, longitude, zoom) => {
 export default function App() {
   const classes = useStyles();
 
-  const statusMappings = {
-    "Not busy": "#66cdaa",
-    "Not too busy": "#66cdaa",
-    "Less busy than usual": "#66cdaa",
-    "A little busy": "#ffa500",
-    "As busy as it gets": "#f998a5",
-    "Busier than usual": "#f998a5",
-    "Usually not busy": "#66cdaa",
-    "Usually not too busy": "#66cdaa",
-    "Usually a little busy": "#ffa500",
-    "Usually as busy as it gets": "#f998a5",
-  };
-
   const [loading, setLoading] = useState(true);
+  const allData = useRef([]);
   const [data, setData] = useState({ locations: [] });
   const { latitude, longitude, error } = usePosition(false);
   const mapCoords = useRef({ lat: latitude, lng: longitude });
   const zoom = useRef(0);
 
-  const handleChangeCategory = (event) => {
-    category.current = event.target.value;
-    setCategoryAnchorEl(null);
-  };
+  // for snackbar
+  const [snackbarOpen, setSnackbarOpen] = React.useState(false);
+
+  const [searchText, setSearchText] = useState("");
+
+  // for category
+  const category = useRef(0);
+  const [day, setDay] = useState(-1);
+  const [time, setTime] = useState(null);
+  const [dayAnchorEl, setDayAnchorEl] = useState(null);
+  const [timeAnchorEl, setTimeAnchorEl] = useState(null);
+
+  // filter no time data
+  const [excludeNoTimeData, setExcludeNoTimeData] = useState(false);
 
   const handleChangeDay = (event) => {
     setDay(event.target.value);
-    if (event.target.value > -1) {
-      setTimeAnchorEl(event.currentTarget);
+    if (event.target.value === -1) {
+      setTime(null);
     } else {
-      handleCloseDayMenu();
+      setTime(new Date().getHours());
     }
+    setDayAnchorEl(null);
+  };
+
+  const handleChangeTime = (event) => {
+    setTime(event.target.value);
+    setTimeAnchorEl(null);
   };
 
   const handleSearch = async () => {
     const query = searchText;
     setSearchText("");
+    setExcludeNoTimeData(false);
+    setDay(-1);
+    setTime(null);
+
     const result = await getLocations(query, mapCoords.current.lat, mapCoords.current.lng);
     if (!result) return;
+
+    // remove duplicates
     const data = {
       locations: _.uniqBy(result.locationInfoList, (val) => val.longitude + ',' + val.latitude),
     };
+
+    // store non-filtered data
+    allData.current = JSON.parse(JSON.stringify(data.locations));
+    console.log("allData:", allData.current);
+
     setData(data);
   };
 
   const handleChangeText = (event) => {
     setSearchText(event.target.value);
   };
-
-  const handleCloseCategoryMenu = (event) => {
-    setCategoryAnchorEl(null);
-  };
-
+  
   const handleCloseDayMenu = (event) => {
     setDayAnchorEl(null);
   };
 
   const handleCloseTimeMenu = (event) => {
     setTimeAnchorEl(null);
-    if (event && event.target) {
-      setTime(event.target.value);
-    }
-    console.log("current day and time:", day, time);
   };
 
   const handleNoTimeData = () => {
-    setNoTimeData(!noTimeData);
+    setExcludeNoTimeData(!excludeNoTimeData);
   };
 
   const handleMapCoordsChange = async () => {
@@ -297,82 +274,103 @@ export default function App() {
     // remove duplicates
     data.locations = _.uniqBy(data.locations, (val) => val.longitude + ',' + val.latitude);
 
+    // store non-filtered data
+    allData.current = JSON.parse(JSON.stringify(data.locations));
+    console.log("allData:", allData.current);
+
+    // exclude "no time data" and filter by current day, time settings
+    if (excludeNoTimeData) {
+      data.locations = filterDayTime(data.locations);
+    }
+
     setData(data);
   }
 
-  // for snackbar
-  const [snackbarOpen, setSnackbarOpen] = React.useState(false);
-
-  const [searchText, setSearchText] = useState("");
-
-  // for category
-  const category = useRef(1);
-  const [day, setDay] = useState(-1);
-  const [time, setTime] = useState(-1);
-  const [categoryAnchorEl, setCategoryAnchorEl] = useState(null);
-  const [dayAnchorEl, setDayAnchorEl] = useState(null);
-  const [timeAnchorEl, setTimeAnchorEl] = useState(null);
-
-  // filter no time data
-  const [noTimeData, setNoTimeData] = useState(false);
-
-  useEffect(() => {
-    console.log(`CATEGORY CHANGED TO ${category.current}.. (${JSON.stringify(mapCoords.current)})`);
+  const handleCategoryChange = async (val) => {
+    category.current = val;
     if (!mapCoords.current.lat || !mapCoords.current.lng) {
       return;
     }
-    const fetchData = async () => {
-      const promises = [];
+    const promises = [];
+    promises.push(
+      getLocations(
+        categories[category.current].name,
+        mapCoords.current.lat,
+        mapCoords.current.lng,
+        zoom.current
+      )
+    );
+    if (category.current === 0) {
       promises.push(
         getLocations(
-          categories[category.current].name,
+          "Grocery store",
           mapCoords.current.lat,
           mapCoords.current.lng,
           zoom.current
         )
       );
-      if (category.current === 0) {
-        promises.push(
-          getLocations(
-            "Grocery store",
-            mapCoords.current.lat,
-            mapCoords.current.lng,
-            zoom.current
-          )
-        );
-      }
-      const result = await Promise.all(promises);
-      console.log(`CATEGORY AFTER: ${category.current}.. (${JSON.stringify(mapCoords.current)})`);
-      if (!result || !result.length) {
-        return; // setData({ locations: [] }) ?
-      }
+    }
+    const result = await Promise.all(promises);
+    console.log(`CATEGORY AFTER: ${category.current}.. (${JSON.stringify(mapCoords.current)})`);
+    if (!result || !result.length) {
+      return; // setData({ locations: [] }) ?
+    }
 
-      const data = { locations: result[0].locationInfoList };
+    const data = { locations: result[0].locationInfoList };
 
-      // concat "Grocery store"
-      if (result[1]) {
-        data.locations = data.locations.concat(result[1].locationInfoList);
-      }
+    // concat "Grocery store"
+    if (result[1]) {
+      data.locations = data.locations.concat(result[1].locationInfoList);
+    }
 
-      // remove duplicates
-      data.locations = _.uniqBy(data.locations, (val) => val.longitude + ',' + val.latitude);
+    // remove duplicates
+    data.locations = _.uniqBy(data.locations, (val) => val.longitude + ',' + val.latitude);
+    
+    // store non-filtered data
+    allData.current = JSON.parse(JSON.stringify(data.locations));
+    console.log("allData:", allData.current);
 
-      // exclude "no time data"
-      if (noTimeData) {
-        data.locations = _.filter(data.locations, (location) => {
-          return location.nowStatus !== "No popular times data";
-        });
-      }
+    // exclude "no time data" and filter by current day, time settings
+    if (excludeNoTimeData) {
+      data.locations = filterDayTime(data.locations);
+    }
+    
+    setData(data);
+  }
 
-      setData(data);
-    };
-
-    fetchData();
-  }, [category.current, noTimeData]);
+  const filterDayTime = (data) => {
+    console.log("filtering day and time..", day, time, excludeNoTimeData);
+    if (!excludeNoTimeData) return data;
+    if (day === -1) {
+      return _.filter(data, (loc) => loc.nowStatus !== "No popular times data");
+    } else {
+      return _.filter(data, (loc) => {
+        // If 'time' is set, check the status at the time of the day exists.
+        // If not, check the status at the current time of user exists.
+        if (loc.allStatus && loc.allStatus[day] && loc.allStatus[day].length) {
+          // It should always be the case that time !== null here
+          const stat = loc.allStatus[day].filter(stat => { return stat.time === time })[0];
+          return stat && stat.status && stat.status !== '';
+        } else {
+          return false;
+        }
+      });
+    }
+  }
 
   useEffect(() => {
-    // TODO(lia): select only the places that have the time data
-  }, [time]);
+    if (excludeNoTimeData) {
+      console.log(`excluding no time data.. (current allData: ${allData.current.length})`);
+      setData({ locations: filterDayTime(data.locations) });
+    } else {
+      console.log(`including no time data.. (current allData: ${allData.current.length})`, allData.current);
+      setData({ locations: JSON.parse(JSON.stringify(allData.current)) });
+    }
+  }, [excludeNoTimeData]);
+
+  useEffect(() => {
+    setData({ locations: filterDayTime(allData.current) });
+  }, [day, time]);
 
   return (
     <React.Fragment>
@@ -445,6 +443,13 @@ export default function App() {
                 Search
               </Button>
             </div>
+            <div>
+              {categories.map((item, index) => (
+                <Button onClick={() => handleCategoryChange(item.val)} key={index}>
+                  {item.name}
+                </Button>
+              ))}
+            </div>
             <div
               style={{
                 display: "flex",
@@ -457,18 +462,18 @@ export default function App() {
                 <Button
                   aria-controls="simple-menu"
                   aria-haspopup="true"
-                  onClick={(event) => setCategoryAnchorEl(event.currentTarget)}
+                  onClick={(event) => setDayAnchorEl(event.currentTarget)}
                 >
-                  Select Category
+                  Day
                 </Button>
                 <Menu
-                  id="select-category"
-                  onClose={handleCloseCategoryMenu}
-                  open={Boolean(categoryAnchorEl)}
-                  anchorEl={categoryAnchorEl}
+                  id="select-day"
+                  onClose={handleCloseDayMenu}
+                  open={Boolean(dayAnchorEl)}
+                  anchorEl={dayAnchorEl}
                 >
-                  {categories.map((item, index) => (
-                    <MenuItem onClick={handleChangeCategory} value={item.val} key={index}>
+                  {days.map((item, index) => (
+                    <MenuItem selected={day === item.val} onClick={handleChangeDay} value={item.val} key={index}>
                       {item.name}
                     </MenuItem>
                   ))}
@@ -477,40 +482,30 @@ export default function App() {
                 <Button
                   aria-controls="simple-menu"
                   aria-haspopup="true"
-                  onClick={(event) => setDayAnchorEl(event.currentTarget)}
+                  onClick={(event) => setTimeAnchorEl(event.currentTarget)}
                 >
-                  When
+                  Time
                 </Button>
                 <Menu
-                  id="day-menu"
-                  keepMounted
-                  open={Boolean(dayAnchorEl)}
-                  onClose={handleCloseDayMenu}
-                  anchorEl={dayAnchorEl}
+                  id="select-time"
+                  onClose={handleCloseTimeMenu}
+                  open={Boolean(timeAnchorEl)}
+                  anchorEl={timeAnchorEl}
                 >
-                  {days.map((item, index) => (
-                    <MenuItem
-                      key={index}
-                      onClick={handleChangeDay}
-                      value={item.val}
-                    >
+                  {times.map((item, index) => (
+                    <MenuItem selected={time === item.val} onClick={handleChangeTime} value={item.val} key={index}>
                       {item.name}
                     </MenuItem>
                   ))}
                 </Menu>
-
-                <TimeMenu
-                  anchorEl={timeAnchorEl}
-                  onClose={() => setTimeAnchorEl(null)}
-                  handleCloseTimeMenu={handleCloseTimeMenu}
-                  handleCloseDayMenu={handleCloseDayMenu}
-                />
               </div>
               <Button onClick={handleNoTimeData}>Exclude no time data</Button>
             </div>
           </div>
           <Map
             data={data}
+            day={day}
+            time={time}
             userGps={{ latitude, longitude }}
             zoom={zoom}
             mapCoords={mapCoords}

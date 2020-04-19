@@ -12,6 +12,8 @@ const getDirectionsUrl = (addr) => {
 
 export const Map = ({
   data,
+  day,
+  time,
   userGps,
   zoom,
   mapCoords,
@@ -77,14 +79,23 @@ export const Map = ({
         turfPoints.push(toPoint);
         loc.distance = fromPoint ? Number(distance(fromPoint, toPoint)).toFixed(4) : '?';
         loc.directions = getDirectionsUrl(loc.address);
-        const { status, live, img } = getInfoFromNowStatus(loc.nowStatus);
+        let statusStr = '';
+        if (day === -1) {
+          statusStr = loc.nowStatus;
+        } else if (loc.allStatus && loc.allStatus[day]) {
+          const stat = loc.allStatus[day].filter(stat => stat.time === time)[0];
+          statusStr = stat && stat.status && stat.status !== '' ? stat.status : 'No popular times data';
+        } else {
+          statusStr = 'No popular times data';
+        }
+        const { status, img } = getInfoFromNowStatus(statusStr);
 
         let popupEl = document.createElement('div');
         popupEl.className = 'popup-inner';
         popupEl.innerHTML = `
           <div class="top">
-            <div class="crowded-${status}">${loc.nowStatus}</div>
-            ${live ?'<div class="live"><span class="dot"></span>Live</div>' : ''}
+            <div class="crowded-${status}">${statusStr}</div>
+            ${day === -1 && loc.live ?'<div class="live"><span class="dot"></span>Live</div>' : ''}
           </div>
           <div class="middle">
             <div>${loc.name}</div>
@@ -100,7 +111,7 @@ export const Map = ({
         .setDOMContent(popupEl);
 
         let markerEl = document.createElement('div');
-        markerEl.className = `marker${live ? ' live' : ''}`
+        markerEl.className = `marker${loc.live ? ' live' : ''}`
         markerEl.innerHTML = `<img src="${process.env.PUBLIC_URL}${img}" />`
         newMarkers.push(new mapboxgl.Marker(markerEl)
         .setLngLat(lnglat)
@@ -125,7 +136,7 @@ export const Map = ({
     }
     
     markers.current = newMarkers;
-  }, [data]);
+  }, [data, day, time]);
 
   const wrapperStyle = {
     height: '500px'
