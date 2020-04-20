@@ -38,10 +38,31 @@ export const Map = ({
 
   useEffect(() => {
     if (!userGps.latitude || !userGps.longitude || mapRef.current || !mapContainerRef.current) return;
-    mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
     mapRef.current = new mapboxgl.Map({
       container: mapContainerRef.current,
-      style: 'mapbox://styles/mapbox/streets-v11',
+      style: {
+        "version": 8,
+        "sources": {
+          "raster-tiles": {
+            "type": "raster",
+            "tiles": [
+              // "https://stamen-tiles.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg"
+              "https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png"
+            ],
+            "tileSize": 256,
+          }
+        },
+        "layers": [{
+          "id": "simple-tiles",
+          "type": "raster",
+          "source": "raster-tiles",
+          "minzoom": 0,
+          "maxzoom": 22,
+          "paint": {
+            "raster-fade-duration": 100
+          }
+        }]
+      },
       center: [userGps.longitude, userGps.latitude],
       zoom: initialZoom
     });
