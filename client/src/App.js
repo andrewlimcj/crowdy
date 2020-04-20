@@ -3,67 +3,27 @@ import React, { useState, useEffect, useRef } from "react";
 import { usePosition } from "use-position";
 import _ from "lodash";
 
+// images
+import CategoryIcon from "./images/category";
+import LegendImg from "./images/legend.svg";
+import GitHubIcon from "./images/icon-git-hub.svg";
+import AinizeIcon from "./images/icon-ainize.svg";
+import SearchIcon from "./images/icon-search.svg";
+import ToggleIcon from "./images/icon-toggle.svg";
+
 import "./styles/main.css";
 
 // material-ui
 import AppBar from "@material-ui/core/AppBar";
-import { ThemeProvider } from "@material-ui/styles";
-import PersonPinIcon from "@material-ui/icons/PersonPin";
-import GitHubIcon from "@material-ui/icons/GitHub";
 import CssBaseline from "@material-ui/core/CssBaseline";
-import Grid from "@material-ui/core/Grid";
 import Toolbar from "@material-ui/core/Toolbar";
-import { makeStyles } from "@material-ui/core/styles";
-import Container from "@material-ui/core/Container";
-import Link from "@material-ui/core/Link";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
-import TextField from "@material-ui/core/TextField";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
-import theme from "./theme";
 
 import Map from "./components/Map";
-
-function Copyright() {
-  return (
-    <h6 variant="body2" color="textSecondary" align="center">
-      {"Copyright © "}
-      {new Date().getFullYear()}
-      {" Common Computer Inc."}
-    </h6>
-  );
-}
-
-const useStyles = makeStyles((theme) => ({
-  icon: {
-    marginRight: theme.spacing(2),
-  },
-  heroContent: {
-    backgroundColor: theme.palette.background.paper,
-    padding: theme.spacing(8, 0, 6),
-  },
-  herobuttons: {
-    marginTop: theme.spacing(4),
-  },
-  cardMedia: {
-    paddingTop: "56.25%", // 16:9
-  },
-  cardContent: {
-    flexGrow: 1,
-  },
-  footer: {
-    backgroundColor: theme.palette.background.paper,
-    padding: theme.spacing(6),
-  },
-  categoryActive: {
-    backgroundColor: theme.palette.primary.main,
-  },
-  categoryDefault: {
-    cursor: "pointer",
-  },
-}));
 
 const categories = [
   { val: 0, name: "Supermarket" },
@@ -105,7 +65,6 @@ function Alert(props) {
 }
 
 function LocationSnackbar(props) {
-  const classes = useStyles();
   const { setSnackbarOpen, snackbarOpen } = props;
 
   const handleClose = (event, reason) => {
@@ -117,7 +76,7 @@ function LocationSnackbar(props) {
   };
 
   return (
-    <div className={classes.root}>
+    <div>
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={10000}
@@ -142,8 +101,6 @@ const getLocations = (category, latitude, longitude, zoom) => {
 };
 
 export default function App() {
-  const classes = useStyles();
-
   const [loading, setLoading] = useState(true);
   const allData = useRef([]);
   const [data, setData] = useState({ locations: [] });
@@ -327,42 +284,48 @@ export default function App() {
   };
 
   return (
-    <ThemeProvider theme={theme}>
+    <React.Fragment>
       <CssBaseline />
-      <AppBar className="appBar" position="relative" color="secondary">
-        <Toolbar>
-          <h5 className="logo">Crowdy</h5>
-        </Toolbar>
-      </AppBar>
+      <header>
+        <div className="container">
+          <h3 className="logo">Crowdy</h3>
+          <a>HOME</a>
+        </div>
+      </header>
       <main>
         {/* Hero unit */}
         <div className="hero section">
-        <div className="container">
-          <h1 className="typography">
-            Find supermarkets near you that are not crowded! Based on{" "}
-            <a className="link"href="https://support.google.com/business/answer/6263531?hl=en">
-              popular times data*
-            </a>{" "}
-            from Google Maps
-          </h1>
-          <h3 className="subtitle" align="left" color="textSecondary" paragraph>
-            * Data might not be 100% accurate as it is obtained via web scraping
-          </h3>
-          <LocationSnackbar
-            snackbarOpen={snackbarOpen}
-            setSnackbarOpen={setSnackbarOpen}
-          />
+          <div className="container">
+            <h1 className="typography">
+              Find supermarkets near you that are not crowded! Based on{" "}
+              <a
+                className="link"
+                href="https://support.google.com/business/answer/6263531?hl=en"
+              >
+                popular times data*
+              </a>{" "}
+              from Google Maps
+            </h1>
+            <h2
+              className="subtitle"
+              align="left"
+              color="textSecondary"
+              paragraph
+            >
+              * Data might not be 100% accurate as it is obtained via web
+              scraping
+            </h2>
+            <LocationSnackbar
+              snackbarOpen={snackbarOpen}
+              setSnackbarOpen={setSnackbarOpen}
+            />
+          </div>
         </div>
-        </div>
-        <div className="container">
-          {loading && <LinearProgress />}
-          {/* End hero unit */}
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <div style={{ display: "flex", flexDirection: "row" }}>
-              <TextField
-                style={{ display: "flex", flex: 5 }}
-                hinttext="Search..."
-                variant="outlined"
+        <div className="map section">
+          <div className="container">
+            <div className="searchWrapper">
+              <input
+                placeholder="Search"
                 value={searchText}
                 onChange={handleChangeText}
                 onKeyPress={(event) => {
@@ -372,42 +335,48 @@ export default function App() {
                   }
                 }}
               />
-              <button
-                style={{ display: "flex", flex: 1 }}
-                onClick={handleSearch}
-              >
-                Search
+              <button onClick={handleSearch}>
+                <img src={SearchIcon} />
               </button>
             </div>
-            <div>
+
+            <div className="categoryWrapper">
               {categories.map((item, index) => (
                 <button
                   onClick={() => handleCategoryChange(item.val)}
                   key={index}
                 >
-                  {item.name}
+                  <img
+                    src={
+                      category.current === item.val
+                        ? CategoryIcon.select[item.val]
+                        : CategoryIcon.unselect[item.val]
+                    }
+                  />
                 </button>
               ))}
             </div>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                width: "100%",
-                justifyContent: "space-between",
-              }}
-            >
-              <div style={{ display: "flex", flexDirection: "row" }}>
+            <div className="menuWrapper">
+              <div className="group">
                 <button
+                  className="day"
                   onClick={(event) => setDayAnchorEl(event.currentTarget)}
                 >
-                  Day
+                  When
+                  <img src={ToggleIcon} />
                 </button>
                 <Menu
                   id="select-day"
                   onClose={handleCloseDayMenu}
                   open={Boolean(dayAnchorEl)}
                   anchorEl={dayAnchorEl}
+                  PaperProps={{
+                    style: {
+                      marginTop: 40,
+                      boxShadow: "none",
+                      borderRadius: 0,
+                    },
+                  }}
                 >
                   {days.map((item, index) => (
                     <MenuItem
@@ -422,17 +391,25 @@ export default function App() {
                 </Menu>
 
                 <button
-                  aria-controls="simple-menu"
-                  aria-haspopup="true"
+                  className="time"
                   onClick={(event) => setTimeAnchorEl(event.currentTarget)}
                 >
                   Time
+                  <img src={ToggleIcon} />
                 </button>
                 <Menu
                   id="select-time"
                   onClose={handleCloseTimeMenu}
                   open={Boolean(timeAnchorEl)}
                   anchorEl={timeAnchorEl}
+                  PaperProps={{
+                    style: {
+                      maxHeight: 300,
+                      marginTop: 40,
+                      boxShadow: "none",
+                      borderRadius: 0,
+                    },
+                  }}
                 >
                   {times.map((item, index) => (
                     <MenuItem
@@ -446,41 +423,41 @@ export default function App() {
                   ))}
                 </Menu>
               </div>
-              <button onClick={handleNoTimeData}>Exclude no time data</button>
+              <div className="group">
+                <input
+                  id="toggleData"
+                  type="checkbox"
+                  onClick={handleNoTimeData}
+                />
+                <label for="toggleData">Exclude no time data</label>
+                <img src={LegendImg} />
+              </div>
             </div>
           </div>
-          <Map
-            data={data}
-            day={day}
-            time={time}
-            userGps={{ latitude, longitude }}
-            zoom={zoom}
-            mapCoords={mapCoords}
-            loading={loading}
-            setLoading={setLoading}
-            handleMapCoordsChange={handleMapCoordsChange}
-          />
         </div>
+        {loading && <LinearProgress />}
+        <Map
+          data={data}
+          day={day}
+          time={time}
+          userGps={{ latitude, longitude }}
+          zoom={zoom}
+          mapCoords={mapCoords}
+          loading={loading}
+          setLoading={setLoading}
+          handleMapCoordsChange={handleMapCoordsChange}
+        />
       </main>
-      {/* Footer */}
-      <footer className={classes.footer}>
-        <Grid container direction="row" justify="space-between">
-          <Grid container style={{ maxWidth: "300px" }} direction="row">
-            <Grid item>
-              <Link color="inherit" href="https://ainize.ai">
-                POWERED BY AINIZE
-              </Link>
-            </Grid>
-            <Grid item style={{ marginLeft: "16px" }}>
-              <Link color="inherit" href="https://github.com/liayoo/crowdy">
-                VISIT GITHUB
-              </Link>
-            </Grid>
-          </Grid>
-          <Copyright />
-        </Grid>
+      <footer>
+        <a className="ainizeLink" href="https://ainize.ai">
+          <img src={AinizeIcon} />
+          POWERED BY AINIZE
+        </a>
+        <a className="githubLink" href="https://github.com/liayoo/crowdy">
+          <img src={GitHubIcon} />
+          VISIT GITHUB
+        </a>
       </footer>
-      {/* End footer */}
-    </ThemeProvider>
+    </React.Fragment>
   );
 }
