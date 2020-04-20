@@ -14,9 +14,7 @@ import ToggleIcon from "./images/icon-toggle.svg";
 import "./styles/main.css";
 
 // material-ui
-import AppBar from "@material-ui/core/AppBar";
 import CssBaseline from "@material-ui/core/CssBaseline";
-import Toolbar from "@material-ui/core/Toolbar";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
@@ -357,7 +355,7 @@ export default function App() {
               ))}
             </div>
             <div className="menuWrapper">
-              <div className="group">
+              <div className="group one">
                 <button
                   className="day"
                   onClick={(event) => setDayAnchorEl(event.currentTarget)}
@@ -423,13 +421,15 @@ export default function App() {
                   ))}
                 </Menu>
               </div>
-              <div className="group">
-                <input
-                  id="toggleData"
-                  type="checkbox"
-                  onClick={handleNoTimeData}
-                />
-                <label for="toggleData">Exclude no time data</label>
+              <div className="group two">
+                <div className="toggle">
+                  <input
+                    id="toggleData"
+                    type="checkbox"
+                    onClick={handleNoTimeData}
+                  />
+                  <label for="toggleData">Exclude no time data</label>
+                </div>
                 <img src={LegendImg} />
               </div>
             </div>
