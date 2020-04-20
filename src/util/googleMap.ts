@@ -63,13 +63,15 @@ export default class GoogleMap {
       // locations[0]: longitude  , locations[1]: latitude
       const coordinate = placeInfo.substring(coordinateIdx, placeInfo.indexOf(']', coordinateIdx)).split(',');
       const link = `${GOOGLE_URL}/maps/search/${address}/@${coordinate[1]},${coordinate[0]},${15}z`;
-
+      const directions = `${GOOGLE_URL}/maps/dir/?api=1&destination=${address}`;
+      
       result.push({
         name,
         address,
         latitude: coordinate[1],
         longitude: coordinate[0],
         link,
+        directions,
         phoneNumber: (/\d{2,3}-\d{3,4}-\d{4}/g.test(phoneNumber)) ? phoneNumber : undefined,
       });
     }

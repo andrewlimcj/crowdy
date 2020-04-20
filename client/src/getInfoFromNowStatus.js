@@ -1,39 +1,33 @@
 const getInfoFromNowStatus = (nowStatus) => {
-  let status, live, img;
+  let status, img;
 
   switch(nowStatus) {
     case 'No popular times data':
       status = 0;
-      live = false;
       break;
     case 'Usually not busy':
       status = 1;
-      live = false;
       break;
     case 'Not busy':
     case 'Less busy than usual':
       status = 1;
-      live = true;
       break;
     case 'Usually not too busy':
     case 'Usually a little busy':
+    case 'Usually busy':
       status = 2;
-      live = false;
       break;
     case 'A little busy':
     case 'Not too busy':
     case 'Busier than usual':
       status = 2;
-      live = true;
       break;
     case 'Usually as busy as it gets':
       status = 3;
-      live = false;
       break;
     case 'Very busy':
     case 'As busy as it gets':
       status = 3;
-      live = true;
       break;
   }
   
@@ -52,7 +46,7 @@ const getInfoFromNowStatus = (nowStatus) => {
       break;
   }
 
-  return { status, live, img };
+  return { status, img };
 }
 
 export default getInfoFromNowStatus;
