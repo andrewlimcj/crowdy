@@ -1,19 +1,49 @@
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500&display=swap");
 
+* {
+  font-family: "Montserrat" !important;
+  color: #1a1b1f;
+}
+
 header {
   box-shadow: none !important;
 }
-
-.mapContainer {
-  padding: 0 !important;
+.logo {
+  font-size: 25px;
+  font-weight: 600;
+  text-decoration: underline;
 }
 
-body {
-  font-family: Montserrat, sans-serif;
-  color: #1a1b1f;
-  font-size: 16px;
-  line-height: 28px;
-  font-weight: 400;
+.hero.section {
+  margin: 0 30px;
+}
+
+.hero .container {
+  margin-top: 80px;
+  margin-bottom: 100px;
+  display: block;
+  width: 100%;
+  max-width: 1140px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.typography {
+  margin: 10px 0;
+  font-size: 64px;
+  line-height: 80px;
+  text-transform: none;
+}
+.link {
+  position: static;
+  display: block;
+  float: none;
+  clear: none;
+  -webkit-transition-property: color;
+  transition-property: color;
+  text-decoration: none;
+  -o-object-fit: fill;
+  object-fit: fill;
 }
 
 h1 {
@@ -33,10 +63,8 @@ h2 {
 }
 
 h3 {
-  margin-top: 10px;
-  margin-bottom: 10px;
-  font-size: 30px;
-  line-height: 46px;
+  font-size: 16px;
+  line-height: 28px;
   font-weight: 400;
 }
 
@@ -73,11 +101,11 @@ a {
   -webkit-transition: opacity 200ms ease;
   transition: opacity 200ms ease;
   color: #1a1b1f;
-  text-decoration: underline;
 }
 
 a:hover {
   color: #7586b9;
+  text-decoration: underline;
 }
 
 a:active {

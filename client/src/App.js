@@ -336,31 +336,25 @@ export default function App() {
       </AppBar>
       <main>
         {/* Hero unit */}
-        <div className={classes.heroContent}>
-          <Container maxWidth="md">
-            <h1 className="typography">
-              Find supermarkets near you that are not crowded! Based on{" "}
-              <a href="https://support.google.com/business/answer/6263531?hl=en">
-                popular times data*
-              </a>{" "}
-              from Google Maps
-            </h1>
-            <h3
-              className="subtitle"
-              align="left"
-              color="textSecondary"
-              paragraph
-            >
-              * Data might not be 100% accurate as it is obtained via web
-              scraping
-            </h3>
-            <LocationSnackbar
-              snackbarOpen={snackbarOpen}
-              setSnackbarOpen={setSnackbarOpen}
-            />
-          </Container>
+        <div className="hero section">
+        <div className="container">
+          <h1 className="typography">
+            Find supermarkets near you that are not crowded! Based on{" "}
+            <a className="link"href="https://support.google.com/business/answer/6263531?hl=en">
+              popular times data*
+            </a>{" "}
+            from Google Maps
+          </h1>
+          <h3 className="subtitle" align="left" color="textSecondary" paragraph>
+            * Data might not be 100% accurate as it is obtained via web scraping
+          </h3>
+          <LocationSnackbar
+            snackbarOpen={snackbarOpen}
+            setSnackbarOpen={setSnackbarOpen}
+          />
         </div>
-        <Container className="mapContainer">
+        </div>
+        <div className="container">
           {loading && <LinearProgress />}
           {/* End hero unit */}
           <div style={{ display: "flex", flexDirection: "column" }}>
@@ -466,7 +460,7 @@ export default function App() {
             setLoading={setLoading}
             handleMapCoordsChange={handleMapCoordsChange}
           />
-        </Container>
+        </div>
       </main>
       {/* Footer */}
       <footer className={classes.footer}>
