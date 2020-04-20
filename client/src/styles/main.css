@@ -53,6 +53,29 @@ header .container {
   margin: 10px 0;
   text-transform: none;
 }
+
+.hero .typography .textLoop ._0 {
+  color: #FE798D;
+}
+.hero .typography .textLoop ._1 {
+  color: #A452A2
+}
+.hero .typography .textLoop ._2 {
+  color: #EE9B5B
+}
+.hero .typography .textLoop ._3 {
+  color: #AA642F
+}
+.hero .typography .textLoop ._4 {
+  color: #77C098
+}
+.hero .typography .textLoop ._5 {
+  color: #4EA49B
+}
+.hero .typography .textLoop ._6 {
+  color: #6F86C0
+} 
+
 .hero .link {
   position: static;
   display: block;

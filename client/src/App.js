@@ -13,6 +13,8 @@ import ToggleIcon from "./images/icon-toggle.svg";
 
 import "./styles/main.css";
 
+import TextLoop from "react-text-loop";
+
 // material-ui
 import CssBaseline from "@material-ui/core/CssBaseline";
 import LinearProgress from "@material-ui/core/LinearProgress";
@@ -295,7 +297,22 @@ export default function App() {
         <div className="hero section">
           <div className="container">
             <h1 className="typography">
-              Find supermarkets near you that are not crowded! Based on{" "}
+              Find{" "}
+              <TextLoop
+                className="textLoop"
+                interval={5000}
+                mask={true}
+                adjustingSpeed={200}
+              >
+                <span className="_0">supermarkets </span>
+                <span className="_1">shopping malls </span>
+                <span className="_2">restaurants </span>
+                <span className="_3">cafes </span>
+                <span className="_4">hospitals </span>
+                <span className="_5">pharmacies </span>
+                <span className="_6">banks </span>
+              </TextLoop>{" "}
+              near you that are not crowded! Based on{" "}
               <a
                 className="link"
                 href="https://support.google.com/business/answer/6263531?hl=en"

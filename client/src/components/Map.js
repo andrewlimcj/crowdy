@@ -49,7 +49,7 @@ export const Map = ({
               // "https://stamen-tiles.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg"
               "https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png"
             ],
-            "tileSize": 256,
+            "tileSize": 256,
           }
         },
         "layers": [{
