@@ -93,33 +93,19 @@ const days = [
   { val: 6, name: "Saturday" },
 ];
 
-const times = [
-  /*{ val: -1, name: "Historic Avg" },*/
-  { val: 0, name: "12 AM" },
-  { val: 1, name: "1 AM" },
-  { val: 2, name: "2 AM" },
-  { val: 3, name: "3 AM" },
-  { val: 4, name: "4 AM" },
-  { val: 5, name: "5 AM" },
-  { val: 6, name: "6 AM" },
-  { val: 7, name: "7 AM" },
-  { val: 8, name: "8 AM" },
-  { val: 9, name: "9 AM" },
-  { val: 10, name: "10 AM" },
-  { val: 11, name: "11 AM" },
-  { val: 12, name: "12 PM" },
-  { val: 13, name: "1 PM" },
-  { val: 14, name: "2 PM" },
-  { val: 15, name: "3 PM" },
-  { val: 16, name: "4 PM" },
-  { val: 17, name: "5 PM" },
-  { val: 18, name: "6 PM" },
-  { val: 19, name: "7 PM" },
-  { val: 20, name: "8 PM" },
-  { val: 21, name: "9 PM" },
-  { val: 22, name: "10 PM" },
-  { val: 23, name: "11 PM" },
-];
+const times = [];
+for (let i = 0; i < 24; i++) {
+  const val = i;
+  let name;
+  if (i === 0) {
+    name = "12 AM";
+  } else if (i === 12) {
+    name = "12 PM";
+  } else {
+    name = (i % 12) + (i < 12 ? " AM" : " PM");
+  }
+  times.push({ val, name });
+}
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
