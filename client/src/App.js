@@ -3,15 +3,16 @@ import React, { useState, useEffect, useRef } from "react";
 import { usePosition } from "use-position";
 import _ from "lodash";
 
+import "./styles/main.css";
+
 // material-ui
 import AppBar from "@material-ui/core/AppBar";
-import Button from "@material-ui/core/Button";
+import { ThemeProvider } from "@material-ui/styles";
 import PersonPinIcon from "@material-ui/icons/PersonPin";
 import GitHubIcon from "@material-ui/icons/GitHub";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Grid from "@material-ui/core/Grid";
 import Toolbar from "@material-ui/core/Toolbar";
-import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import Link from "@material-ui/core/Link";
@@ -21,16 +22,17 @@ import MuiAlert from "@material-ui/lab/Alert";
 import TextField from "@material-ui/core/TextField";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
+import theme from "./theme";
 
 import Map from "./components/Map";
 
 function Copyright() {
   return (
-    <Typography variant="body2" color="textSecondary" align="center">
+    <h6 variant="body2" color="textSecondary" align="center">
       {"Copyright © "}
       {new Date().getFullYear()}
       {" Common Computer Inc."}
-    </Typography>
+    </h6>
   );
 }
 
@@ -42,17 +44,8 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.background.paper,
     padding: theme.spacing(8, 0, 6),
   },
-  heroButtons: {
+  herobuttons: {
     marginTop: theme.spacing(4),
-  },
-  cardGrid: {
-    paddingTop: theme.spacing(2),
-    paddingBottom: theme.spacing(2),
-  },
-  card: {
-    height: "100%",
-    display: "flex",
-    flexDirection: "column",
   },
   cardMedia: {
     paddingTop: "56.25%", // 16:9
@@ -197,8 +190,10 @@ export default function App() {
 
   const handleChangeTime = (event) => {
     if (day === -1) {
-      alert("Please select the day of the week first and then set the time. " +
-        "Currently you're viewing the 'Live Data'. This setting can be changed in the 'Day' menu.")
+      alert(
+        "Please select the day of the week first and then set the time. " +
+          "Currently you're viewing the 'Live Data'. This setting can be changed in the 'Day' menu."
+      );
     } else {
       setTime(event.target.value);
       setTimeAnchorEl(null);
@@ -208,7 +203,7 @@ export default function App() {
   const handleChangeText = (event) => {
     setSearchText(event.target.value);
   };
-  
+
   const handleCloseDayMenu = (event) => {
     setDayAnchorEl(null);
   };
@@ -228,12 +223,19 @@ export default function App() {
     setDay(-1);
     setTime(null);
 
-    const result = await getLocations(query, mapCoords.current.lat, mapCoords.current.lng);
+    const result = await getLocations(
+      query,
+      mapCoords.current.lat,
+      mapCoords.current.lng
+    );
     if (!result) return;
 
     // remove duplicates
     const data = {
-      locations: _.uniqBy(result.locationInfoList, (val) => val.longitude + ',' + val.latitude),
+      locations: _.uniqBy(
+        result.locationInfoList,
+        (val) => val.longitude + "," + val.latitude
+      ),
     };
 
     // store non-filtered data
@@ -244,12 +246,12 @@ export default function App() {
 
   const handleMapCoordsChange = async () => {
     await fetchAndFilterData();
-  }
+  };
 
   const handleCategoryChange = async (val) => {
     category.current = val;
     await fetchAndFilterData();
-  }
+  };
 
   const fetchAndFilterData = async () => {
     if (!mapCoords.current.lat || !mapCoords.current.lng) {
@@ -287,8 +289,11 @@ export default function App() {
     }
 
     // remove duplicates
-    data.locations = _.uniqBy(data.locations, (val) => val.longitude + ',' + val.latitude);
-    
+    data.locations = _.uniqBy(
+      data.locations,
+      (val) => val.longitude + "," + val.latitude
+    );
+
     // store non-filtered data
     allData.current = JSON.parse(JSON.stringify(data.locations));
 
@@ -296,9 +301,9 @@ export default function App() {
     if (excludeNoTimeData) {
       data.locations = filterDayTime(data.locations);
     }
-    
+
     setData(data);
-  }
+  };
 
   const filterDayTime = (data) => {
     if (!excludeNoTimeData) return data;
@@ -310,62 +315,52 @@ export default function App() {
         // If not, check the status at the current time of user exists.
         if (loc.allStatus && loc.allStatus[day] && loc.allStatus[day].length) {
           // It should always be the case that time !== null here
-          const stat = loc.allStatus[day].filter(stat => { return stat.time === time })[0];
-          return stat && stat.status && stat.status !== '';
+          const stat = loc.allStatus[day].filter((stat) => {
+            return stat.time === time;
+          })[0];
+          return stat && stat.status && stat.status !== "";
         } else {
           return false;
         }
       });
     }
-  }
+  };
 
   return (
-    <React.Fragment>
+    <ThemeProvider theme={theme}>
       <CssBaseline />
-      <AppBar position="relative">
+      <AppBar className="appBar" position="relative" color="secondary">
         <Toolbar>
-          <PersonPinIcon className={classes.icon} />
-          <Typography variant="h5" color="inherit" noWrap>
-            Crowdy
-          </Typography>
+          <h5 className="logo">Crowdy</h5>
         </Toolbar>
       </AppBar>
       <main>
         {/* Hero unit */}
         <div className={classes.heroContent}>
           <Container maxWidth="md">
-            <Typography
-              component="h1"
-              variant="h2"
-              align="left"
-              color="textPrimary"
-              paragraph
-            >
+            <h1 className="typography">
               Find supermarkets near you that are not crowded! Based on{" "}
-              <Link
-                color="primary"
-                href="https://support.google.com/business/answer/6263531?hl=en"
-              >
+              <a href="https://support.google.com/business/answer/6263531?hl=en">
                 popular times data*
-              </Link>{" "}
+              </a>{" "}
               from Google Maps
-            </Typography>
-            <Typography
-              variant="subtitle1"
+            </h1>
+            <h3
+              className="subtitle"
               align="left"
               color="textSecondary"
               paragraph
             >
               * Data might not be 100% accurate as it is obtained via web
               scraping
-            </Typography>
+            </h3>
             <LocationSnackbar
               snackbarOpen={snackbarOpen}
               setSnackbarOpen={setSnackbarOpen}
             />
           </Container>
         </div>
-        <Container className={classes.cardGrid} maxWidth="md">
+        <Container className="mapContainer">
           {loading && <LinearProgress />}
           {/* End hero unit */}
           <div style={{ display: "flex", flexDirection: "column" }}>
@@ -383,18 +378,21 @@ export default function App() {
                   }
                 }}
               />
-              <Button
+              <button
                 style={{ display: "flex", flex: 1 }}
                 onClick={handleSearch}
               >
                 Search
-              </Button>
+              </button>
             </div>
             <div>
               {categories.map((item, index) => (
-                <Button onClick={() => handleCategoryChange(item.val)} key={index}>
+                <button
+                  onClick={() => handleCategoryChange(item.val)}
+                  key={index}
+                >
                   {item.name}
-                </Button>
+                </button>
               ))}
             </div>
             <div
@@ -406,13 +404,11 @@ export default function App() {
               }}
             >
               <div style={{ display: "flex", flexDirection: "row" }}>
-                <Button
-                  aria-controls="simple-menu"
-                  aria-haspopup="true"
+                <button
                   onClick={(event) => setDayAnchorEl(event.currentTarget)}
                 >
                   Day
-                </Button>
+                </button>
                 <Menu
                   id="select-day"
                   onClose={handleCloseDayMenu}
@@ -420,19 +416,24 @@ export default function App() {
                   anchorEl={dayAnchorEl}
                 >
                   {days.map((item, index) => (
-                    <MenuItem selected={day === item.val} onClick={handleChangeDay} value={item.val} key={index}>
+                    <MenuItem
+                      selected={day === item.val}
+                      onClick={handleChangeDay}
+                      value={item.val}
+                      key={index}
+                    >
                       {item.name}
                     </MenuItem>
                   ))}
                 </Menu>
 
-                <Button
+                <button
                   aria-controls="simple-menu"
                   aria-haspopup="true"
                   onClick={(event) => setTimeAnchorEl(event.currentTarget)}
                 >
                   Time
-                </Button>
+                </button>
                 <Menu
                   id="select-time"
                   onClose={handleCloseTimeMenu}
@@ -440,13 +441,18 @@ export default function App() {
                   anchorEl={timeAnchorEl}
                 >
                   {times.map((item, index) => (
-                    <MenuItem selected={time === item.val} onClick={handleChangeTime} value={item.val} key={index}>
+                    <MenuItem
+                      selected={time === item.val}
+                      onClick={handleChangeTime}
+                      value={item.val}
+                      key={index}
+                    >
                       {item.name}
                     </MenuItem>
                   ))}
                 </Menu>
               </div>
-              <Button onClick={handleNoTimeData}>Exclude no time data</Button>
+              <button onClick={handleNoTimeData}>Exclude no time data</button>
             </div>
           </div>
           <Map
@@ -481,6 +487,6 @@ export default function App() {
         </Grid>
       </footer>
       {/* End footer */}
-    </React.Fragment>
+    </ThemeProvider>
   );
 }
