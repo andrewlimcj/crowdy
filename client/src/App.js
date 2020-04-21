@@ -3,74 +3,25 @@ import React, { useState, useEffect, useRef } from "react";
 import { usePosition } from "use-position";
 import _ from "lodash";
 
+// images
+import CategoryIcon from "./images/category";
+import LegendImg from "./images/legend.svg";
+import GitHubIcon from "./images/icon-git-hub.svg";
+import AinizeIcon from "./images/icon-ainize.svg";
+import SearchIcon from "./images/icon-search.svg";
+import ToggleIcon from "./images/icon-toggle.svg";
+
+import "./styles/main.css";
+
 // material-ui
-import AppBar from "@material-ui/core/AppBar";
-import Button from "@material-ui/core/Button";
-import PersonPinIcon from "@material-ui/icons/PersonPin";
-import GitHubIcon from "@material-ui/icons/GitHub";
 import CssBaseline from "@material-ui/core/CssBaseline";
-import Grid from "@material-ui/core/Grid";
-import Toolbar from "@material-ui/core/Toolbar";
-import Typography from "@material-ui/core/Typography";
-import { makeStyles } from "@material-ui/core/styles";
-import Container from "@material-ui/core/Container";
-import Link from "@material-ui/core/Link";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
-import TextField from "@material-ui/core/TextField";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
 
 import Map from "./components/Map";
-
-function Copyright() {
-  return (
-    <Typography variant="body2" color="textSecondary" align="center">
-      {"Copyright © "}
-      {new Date().getFullYear()}
-      {" Common Computer Inc."}
-    </Typography>
-  );
-}
-
-const useStyles = makeStyles((theme) => ({
-  icon: {
-    marginRight: theme.spacing(2),
-  },
-  heroContent: {
-    backgroundColor: theme.palette.background.paper,
-    padding: theme.spacing(8, 0, 6),
-  },
-  heroButtons: {
-    marginTop: theme.spacing(4),
-  },
-  cardGrid: {
-    paddingTop: theme.spacing(2),
-    paddingBottom: theme.spacing(2),
-  },
-  card: {
-    height: "100%",
-    display: "flex",
-    flexDirection: "column",
-  },
-  cardMedia: {
-    paddingTop: "56.25%", // 16:9
-  },
-  cardContent: {
-    flexGrow: 1,
-  },
-  footer: {
-    backgroundColor: theme.palette.background.paper,
-    padding: theme.spacing(6),
-  },
-  categoryActive: {
-    backgroundColor: theme.palette.primary.main,
-  },
-  categoryDefault: {
-    cursor: "pointer",
-  },
-}));
 
 const categories = [
   { val: 0, name: "Supermarket" },
@@ -112,7 +63,6 @@ function Alert(props) {
 }
 
 function LocationSnackbar(props) {
-  const classes = useStyles();
   const { setSnackbarOpen, snackbarOpen } = props;
 
   const handleClose = (event, reason) => {
@@ -124,7 +74,7 @@ function LocationSnackbar(props) {
   };
 
   return (
-    <div className={classes.root}>
+    <div>
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={10000}
@@ -149,8 +99,6 @@ const getLocations = (category, latitude, longitude, zoom) => {
 };
 
 export default function App() {
-  const classes = useStyles();
-
   const [loading, setLoading] = useState(true);
   const allData = useRef([]);
   const [data, setData] = useState({ locations: [] });
@@ -197,8 +145,10 @@ export default function App() {
 
   const handleChangeTime = (event) => {
     if (day === -1) {
-      alert("Please select the day of the week first and then set the time. " +
-        "Currently you're viewing the 'Live Data'. This setting can be changed in the 'Day' menu.")
+      alert(
+        "Please select the day of the week first and then set the time. " +
+          "Currently you're viewing the 'Live Data'. This setting can be changed in the 'Day' menu."
+      );
     } else {
       setTime(event.target.value);
       setTimeAnchorEl(null);
@@ -208,7 +158,7 @@ export default function App() {
   const handleChangeText = (event) => {
     setSearchText(event.target.value);
   };
-  
+
   const handleCloseDayMenu = (event) => {
     setDayAnchorEl(null);
   };
@@ -228,12 +178,19 @@ export default function App() {
     setDay(-1);
     setTime(null);
 
-    const result = await getLocations(query, mapCoords.current.lat, mapCoords.current.lng);
+    const result = await getLocations(
+      query,
+      mapCoords.current.lat,
+      mapCoords.current.lng
+    );
     if (!result) return;
 
     // remove duplicates
     const data = {
-      locations: _.uniqBy(result.locationInfoList, (val) => val.longitude + ',' + val.latitude),
+      locations: _.uniqBy(
+        result.locationInfoList,
+        (val) => val.longitude + "," + val.latitude
+      ),
     };
 
     // store non-filtered data
@@ -244,12 +201,12 @@ export default function App() {
 
   const handleMapCoordsChange = async () => {
     await fetchAndFilterData();
-  }
+  };
 
   const handleCategoryChange = async (val) => {
     category.current = val;
     await fetchAndFilterData();
-  }
+  };
 
   const fetchAndFilterData = async () => {
     if (!mapCoords.current.lat || !mapCoords.current.lng) {
@@ -287,8 +244,11 @@ export default function App() {
     }
 
     // remove duplicates
-    data.locations = _.uniqBy(data.locations, (val) => val.longitude + ',' + val.latitude);
-    
+    data.locations = _.uniqBy(
+      data.locations,
+      (val) => val.longitude + "," + val.latitude
+    );
+
     // store non-filtered data
     allData.current = JSON.parse(JSON.stringify(data.locations));
 
@@ -296,9 +256,9 @@ export default function App() {
     if (excludeNoTimeData) {
       data.locations = filterDayTime(data.locations);
     }
-    
+
     setData(data);
-  }
+  };
 
   const filterDayTime = (data) => {
     if (!excludeNoTimeData) return data;
@@ -310,70 +270,60 @@ export default function App() {
         // If not, check the status at the current time of user exists.
         if (loc.allStatus && loc.allStatus[day] && loc.allStatus[day].length) {
           // It should always be the case that time !== null here
-          const stat = loc.allStatus[day].filter(stat => { return stat.time === time })[0];
-          return stat && stat.status && stat.status !== '';
+          const stat = loc.allStatus[day].filter((stat) => {
+            return stat.time === time;
+          })[0];
+          return stat && stat.status && stat.status !== "";
         } else {
           return false;
         }
       });
     }
-  }
+  };
 
   return (
     <React.Fragment>
       <CssBaseline />
-      <AppBar position="relative">
-        <Toolbar>
-          <PersonPinIcon className={classes.icon} />
-          <Typography variant="h5" color="inherit" noWrap>
-            Crowdy
-          </Typography>
-        </Toolbar>
-      </AppBar>
+      <header>
+        <div className="container">
+          <h3 className="logo">Crowdy</h3>
+          <a>HOME</a>
+        </div>
+      </header>
       <main>
         {/* Hero unit */}
-        <div className={classes.heroContent}>
-          <Container maxWidth="md">
-            <Typography
-              component="h1"
-              variant="h2"
-              align="left"
-              color="textPrimary"
-              paragraph
-            >
+        <div className="hero section">
+          <div className="container">
+            <h1 className="typography">
               Find supermarkets near you that are not crowded! Based on{" "}
-              <Link
-                color="primary"
+              <a
+                className="link"
                 href="https://support.google.com/business/answer/6263531?hl=en"
               >
                 popular times data*
-              </Link>{" "}
+              </a>{" "}
               from Google Maps
-            </Typography>
-            <Typography
-              variant="subtitle1"
+            </h1>
+            <h2
+              className="subtitle"
               align="left"
               color="textSecondary"
               paragraph
             >
               * Data might not be 100% accurate as it is obtained via web
               scraping
-            </Typography>
+            </h2>
             <LocationSnackbar
               snackbarOpen={snackbarOpen}
               setSnackbarOpen={setSnackbarOpen}
             />
-          </Container>
+          </div>
         </div>
-        <Container className={classes.cardGrid} maxWidth="md">
-          {loading && <LinearProgress />}
-          {/* End hero unit */}
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <div style={{ display: "flex", flexDirection: "row" }}>
-              <TextField
-                style={{ display: "flex", flex: 5 }}
-                hinttext="Search..."
-                variant="outlined"
+        <div className="map section">
+          <div className="container">
+            <div className="searchWrapper">
+              <input
+                placeholder="Search"
                 value={searchText}
                 onChange={handleChangeText}
                 onKeyPress={(event) => {
@@ -383,104 +333,131 @@ export default function App() {
                   }
                 }}
               />
-              <Button
-                style={{ display: "flex", flex: 1 }}
-                onClick={handleSearch}
-              >
-                Search
-              </Button>
+              <button onClick={handleSearch}>
+                <img src={SearchIcon} />
+              </button>
             </div>
-            <div>
+
+            <div className="categoryWrapper">
               {categories.map((item, index) => (
-                <Button onClick={() => handleCategoryChange(item.val)} key={index}>
-                  {item.name}
-                </Button>
+                <button
+                  onClick={() => handleCategoryChange(item.val)}
+                  key={index}
+                >
+                  <img
+                    src={
+                      category.current === item.val
+                        ? CategoryIcon.select[item.val]
+                        : CategoryIcon.unselect[item.val]
+                    }
+                  />
+                </button>
               ))}
             </div>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                width: "100%",
-                justifyContent: "space-between",
-              }}
-            >
-              <div style={{ display: "flex", flexDirection: "row" }}>
-                <Button
-                  aria-controls="simple-menu"
-                  aria-haspopup="true"
+            <div className="menuWrapper">
+              <div className="group one">
+                <button
+                  className="day"
                   onClick={(event) => setDayAnchorEl(event.currentTarget)}
                 >
-                  Day
-                </Button>
+                  When
+                  <img src={ToggleIcon} />
+                </button>
                 <Menu
                   id="select-day"
                   onClose={handleCloseDayMenu}
                   open={Boolean(dayAnchorEl)}
                   anchorEl={dayAnchorEl}
+                  PaperProps={{
+                    style: {
+                      marginTop: 40,
+                      boxShadow: "none",
+                      borderRadius: 0,
+                    },
+                  }}
                 >
                   {days.map((item, index) => (
-                    <MenuItem selected={day === item.val} onClick={handleChangeDay} value={item.val} key={index}>
+                    <MenuItem
+                      selected={day === item.val}
+                      onClick={handleChangeDay}
+                      value={item.val}
+                      key={index}
+                    >
                       {item.name}
                     </MenuItem>
                   ))}
                 </Menu>
 
-                <Button
-                  aria-controls="simple-menu"
-                  aria-haspopup="true"
+                <button
+                  className="time"
                   onClick={(event) => setTimeAnchorEl(event.currentTarget)}
                 >
                   Time
-                </Button>
+                  <img src={ToggleIcon} />
+                </button>
                 <Menu
                   id="select-time"
                   onClose={handleCloseTimeMenu}
                   open={Boolean(timeAnchorEl)}
                   anchorEl={timeAnchorEl}
+                  PaperProps={{
+                    style: {
+                      maxHeight: 300,
+                      marginTop: 40,
+                      boxShadow: "none",
+                      borderRadius: 0,
+                    },
+                  }}
                 >
                   {times.map((item, index) => (
-                    <MenuItem selected={time === item.val} onClick={handleChangeTime} value={item.val} key={index}>
+                    <MenuItem
+                      selected={time === item.val}
+                      onClick={handleChangeTime}
+                      value={item.val}
+                      key={index}
+                    >
                       {item.name}
                     </MenuItem>
                   ))}
                 </Menu>
               </div>
-              <Button onClick={handleNoTimeData}>Exclude no time data</Button>
+              <div className="group two">
+                <div className="toggle">
+                  <input
+                    id="toggleData"
+                    type="checkbox"
+                    onClick={handleNoTimeData}
+                  />
+                  <label for="toggleData">Exclude no time data</label>
+                </div>
+                <img src={LegendImg} />
+              </div>
             </div>
           </div>
-          <Map
-            data={data}
-            day={day}
-            time={time}
-            userGps={{ latitude, longitude }}
-            zoom={zoom}
-            mapCoords={mapCoords}
-            loading={loading}
-            setLoading={setLoading}
-            handleMapCoordsChange={handleMapCoordsChange}
-          />
-        </Container>
+        </div>
+        {loading && <LinearProgress />}
+        <Map
+          data={data}
+          day={day}
+          time={time}
+          userGps={{ latitude, longitude }}
+          zoom={zoom}
+          mapCoords={mapCoords}
+          loading={loading}
+          setLoading={setLoading}
+          handleMapCoordsChange={handleMapCoordsChange}
+        />
       </main>
-      {/* Footer */}
-      <footer className={classes.footer}>
-        <Grid container direction="row" justify="space-between">
-          <Grid container style={{ maxWidth: "300px" }} direction="row">
-            <Grid item>
-              <Link color="inherit" href="https://ainize.ai">
-                POWERED BY AINIZE
-              </Link>
-            </Grid>
-            <Grid item style={{ marginLeft: "16px" }}>
-              <Link color="inherit" href="https://github.com/liayoo/crowdy">
-                VISIT GITHUB
-              </Link>
-            </Grid>
-          </Grid>
-          <Copyright />
-        </Grid>
+      <footer>
+        <a className="ainizeLink" href="https://ainize.ai">
+          <img src={AinizeIcon} />
+          POWERED BY AINIZE
+        </a>
+        <a className="githubLink" href="https://github.com/liayoo/crowdy">
+          <img src={GitHubIcon} />
+          VISIT GITHUB
+        </a>
       </footer>
-      {/* End footer */}
     </React.Fragment>
   );
 }
