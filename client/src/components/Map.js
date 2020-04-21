@@ -6,6 +6,9 @@ import { debounce } from 'lodash';
 
 import '../styles/map.css';
 
+const DEFAULT_COORDS_LAT = 37.5866022;
+const DEFAULT_COORDS_LNG = 126.972618;
+
 export const Map = ({
   data,
   day,
@@ -16,10 +19,11 @@ export const Map = ({
   setLoading,
   handleMapCoordsChange,
 }) => {
-  const initialZoom = 12.9;
+  const initialZoom = 15;
   const markers = useRef([]);
   const mapRef = useRef(null);
   const mapContainerRef = useRef(null);
+  const gpsRef = useRef(userGps);
 
   const moveEndHandler = (event) => {
     const coords = mapRef.current.getCenter();
@@ -34,8 +38,7 @@ export const Map = ({
 
   const debounceMoveEndHandler = debounce(moveEndHandler, 3000, { leading: false, trailing: true });
 
-  useEffect(() => {
-    if (!userGps.latitude || !userGps.longitude || mapRef.current || !mapContainerRef.current) return;
+  const setUpMap = () => {
     mapRef.current = new mapboxgl.Map({
       container: mapContainerRef.current,
       style: {
@@ -55,13 +58,10 @@ export const Map = ({
           "type": "raster",
           "source": "raster-tiles",
           "minzoom": 0,
-          "maxzoom": 22,
-          "paint": {
-            "raster-fade-duration": 100
-          }
+          "maxzoom": 20
         }]
       },
-      center: [userGps.longitude, userGps.latitude],
+      center: [gpsRef.current.longitude, gpsRef.current.latitude],
       zoom: initialZoom
     });
     const map = mapRef.current;
@@ -76,6 +76,27 @@ export const Map = ({
     map.on('moveend', debounceMoveEndHandler);
 
     handleMapCoordsChange();
+  }
+
+  const handleNoUserGps = () => {
+    if (!mapRef.current && (!gpsRef || !gpsRef.latitude || !gpsRef.longitude)) {
+      console.log("handling no user gps");
+      gpsRef.current = { latitude: DEFAULT_COORDS_LAT, longitude: DEFAULT_COORDS_LNG };
+      setUpMap();
+    }
+  }
+
+  useEffect(() => {
+    // If userGps isn't set in 5 sec, call handleNoUserGps() once
+    setTimeout(handleNoUserGps, 5000);
+  }, []);
+
+  useEffect(() => {
+    if (!userGps.latitude || !userGps.longitude || mapRef.current || !mapContainerRef.current) {
+      return;
+    }
+    gpsRef.current = userGps;
+    setUpMap();
   }, [userGps]);
 
   useEffect(() => {
@@ -145,7 +166,7 @@ export const Map = ({
       turfPoints.forEach(function(pt) {
         bounds.extend(pt.geometry.coordinates);
       });
-      mapRef.current.fitBounds(bounds, { padding: 100 });
+      mapRef.current.fitBounds(bounds, { maxZoom: 15, padding: 100 });
     }
     
     markers.current = newMarkers;
