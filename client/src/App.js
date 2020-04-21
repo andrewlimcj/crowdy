@@ -90,7 +90,7 @@ function LocationSnackbar(props) {
   );
 }
 
-const getLocations = async (category, latitude, longitude) => {
+const getLocations = (category, latitude, longitude) => {
   return new Promise((resolve, reject) => {
     fetch(
       `/api/locations?category=${category}&latitude=${latitude}&longitude=${longitude}`
@@ -106,7 +106,6 @@ export default function App() {
   const [data, setData] = useState({ locations: [] });
   const { latitude, longitude, error } = usePosition(false);
   const mapCoords = useRef({ lat: latitude, lng: longitude });
-  const zoom = useRef(0);
 
   // for snackbar
   const [snackbarOpen, setSnackbarOpen] = React.useState(false);
@@ -451,19 +450,6 @@ export default function App() {
               </div>
             </div>
           </div>
-<<<<<<< HEAD
-          <Map
-            data={data}
-            day={day}
-            time={time}
-            userGps={{ latitude, longitude }}
-            mapCoords={mapCoords}
-            loading={loading}
-            setLoading={setLoading}
-            handleMapCoordsChange={handleMapCoordsChange}
-          />
-        </Container>
-=======
         </div>
         {loading && <LinearProgress />}
         <Map
@@ -471,13 +457,11 @@ export default function App() {
           day={day}
           time={time}
           userGps={{ latitude, longitude }}
-          zoom={zoom}
           mapCoords={mapCoords}
           loading={loading}
           setLoading={setLoading}
           handleMapCoordsChange={handleMapCoordsChange}
         />
->>>>>>> 3647791be5b6fdccffc67d5b9cb1ed734b36a913
       </main>
       <footer>
         <a className="ainizeLink" href="https://ainize.ai">
