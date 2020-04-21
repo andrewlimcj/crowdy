@@ -45,12 +45,6 @@ paths:
             items:
               type: string
               example: 'starbucks'
-        - name: zoom
-          in: query
-          schema:
-            items:
-              type: number
-              example: 15
       responses:
         '200': 
           description: OK

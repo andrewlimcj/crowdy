@@ -19,8 +19,8 @@ app.get('/api/health', (req, res) => {
 });
 
 app.get('/api/locations', async (req, res) => {
-  const latitude = (!req.query.latitude) ? Number(req.query.latitude) : undefined;
-  const longitude = (!req.query.longitude) ? Number(req.query.longitude) : undefined;
+  const latitude = (req.query.latitude) ? Number(req.query.latitude) : undefined;
+  const longitude = (req.query.longitude) ? Number(req.query.longitude) : undefined;
   const category = String(req.query.category);
   log.debug(`[+] request to get locations <category: ${category} latitude: ${latitude}, longitude: ${longitude}>`);
   try {
