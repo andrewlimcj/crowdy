@@ -310,16 +310,20 @@ export default function App() {
                 <span className="_5">pharmacies </span>
                 <span className="_6">banks </span>
               </TextLoop>{" "}
-              near you that are not crowded! Based on{" "}
-              <a
-                className="link"
-                href="https://support.google.com/business/answer/6263531?hl=en"
-              >
-                popular times data*
-              </a>{" "}
-              from Google Maps
+              near you that are not crowded!
+              <h2>
+                Based on{" "}
+                <a
+                  className="link"
+                  href="https://support.google.com/business/answer/6263531?hl=en"
+                >
+                  popular times data*
+                </a>
+                <br/>
+                from Google Maps
+              </h2>
             </h1>
-            <h2
+            <h4
               className="subtitle"
               align="left"
               color="textSecondary"
@@ -327,7 +331,7 @@ export default function App() {
             >
               * Data might not be 100% accurate as it is obtained via web
               scraping
-            </h2>
+            </h4>
             <LocationSnackbar
               snackbarOpen={snackbarOpen}
               setSnackbarOpen={setSnackbarOpen}
