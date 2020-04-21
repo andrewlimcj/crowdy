@@ -21,6 +21,7 @@
     "react": "latest",
     "react-dom": "latest",
     "react-scripts": "latest",
+    "react-text-loop": "^2.3.0",
     "socket.io-client": "^2.3.0",
     "use-position": "0.0.6"
   },
