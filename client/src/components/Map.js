@@ -11,7 +11,6 @@ export const Map = ({
   day,
   time,
   userGps,
-  zoom,
   mapCoords,
   loading,
   setLoading,
@@ -25,7 +24,6 @@ export const Map = ({
   const moveEndHandler = (event) => {
     const coords = mapRef.current.getCenter();
     mapCoords.current = { lat: coords.lat.toFixed(6), lng: coords.lng.toFixed(6) };
-    zoom.current = mapRef.current.getZoom().toFixed(2);
     if (!event.originalEvent) {
       // ignore moveend events triggered by 'flyTo' or 'fitBounds'
       return;
@@ -69,7 +67,6 @@ export const Map = ({
     const map = mapRef.current;
     const coords = map.getCenter();
     mapCoords.current = { lat: coords.lat.toFixed(6), lng: coords.lng.toFixed(6) };
-    zoom.current = map.getZoom().toFixed(2);
     map.on('load', () => {
       if (loading) {
         setLoading(false);
