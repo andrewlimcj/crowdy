@@ -175,6 +175,7 @@ export default function App() {
 
   const handleSearch = async () => {
     const query = searchText;
+    category.current = 0;
     setSearchText("");
     setExcludeNoTimeData(false);
     setDay(-1);
@@ -443,7 +444,8 @@ export default function App() {
                   <input
                     id="toggleData"
                     type="checkbox"
-                    onClick={handleNoTimeData}
+                    checked={excludeNoTimeData}
+                    onChange={handleNoTimeData}
                   />
                   <label for="toggleData">Exclude no time data</label>
                 </div>
