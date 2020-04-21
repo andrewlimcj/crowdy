@@ -138,10 +138,10 @@ function LocationSnackbar(props) {
   );
 }
 
-const getLocations = (category, latitude, longitude, zoom) => {
+const getLocations = async (category, latitude, longitude) => {
   return new Promise((resolve, reject) => {
     fetch(
-      `/api/locations?category=${category}&latitude=${latitude}&longitude=${longitude}&zoom=${zoom}`
+      `/api/locations?category=${category}&latitude=${latitude}&longitude=${longitude}`
     )
       .then((res) => res.json())
       .then((locations) => resolve(locations));
@@ -261,7 +261,6 @@ export default function App() {
         categories[category.current].name,
         mapCoords.current.lat,
         mapCoords.current.lng,
-        zoom.current
       )
     );
     if (category.current === 0) {
@@ -270,7 +269,6 @@ export default function App() {
           "Grocery store",
           mapCoords.current.lat,
           mapCoords.current.lng,
-          zoom.current
         )
       );
     }
@@ -454,7 +452,6 @@ export default function App() {
             day={day}
             time={time}
             userGps={{ latitude, longitude }}
-            zoom={zoom}
             mapCoords={mapCoords}
             loading={loading}
             setLoading={setLoading}

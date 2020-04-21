@@ -2,11 +2,11 @@
 https://devpost.com/software/crowdy-8w1pvu
 
 
-# how to build
+# How to build
 1. npm run heroku-postbuild
 2. npm start
 
-# how to build dockerfile
+# How to build dockerfile
 ```
 sudo docker build -t {Docker path}:{Tag} .
 sudo docker push {Docker path}:{Tag}
