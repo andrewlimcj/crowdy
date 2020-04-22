@@ -92,6 +92,13 @@ export const Map = ({
     
     map.on('moveend', debounceMoveEndHandler);
 
+    map.on("wheel", event => {
+      if (event.originalEvent.ctrlKey || event.originalEvent.metaKey || event.originalEvent.altKey) {
+        return;
+      }
+      event.preventDefault();
+    });
+
     handleMapCoordsChange();
   }
 
