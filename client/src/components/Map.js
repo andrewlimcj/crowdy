@@ -9,6 +9,20 @@ import '../styles/map.css';
 const DEFAULT_COORDS_LAT = 37.5866022;
 const DEFAULT_COORDS_LNG = 126.972618;
 
+const copyrightEl = () => {
+  const el = document.createElement('div');
+  el.className = 'attribWrapper';
+  el.innerHTML = `
+  © 
+  <a href="https://www.mapbox.com/about/maps/">Mapbox</a>
+    © 
+  <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>
+   contributors 
+  <a href="https://www.mapbox.com/map-feedback/#/-74.5/40/10">Improve this map</a>
+  `;
+  return el;
+}
+
 export const Map = ({
   data,
   day,
@@ -62,14 +76,17 @@ export const Map = ({
         }]
       },
       center: [gpsRef.current.longitude, gpsRef.current.latitude],
-      zoom: initialZoom
+      zoom: initialZoom,
+      attributionControl: false
     });
     const map = mapRef.current;
     const coords = map.getCenter();
     mapCoords.current = { lat: coords.lat.toFixed(6), lng: coords.lng.toFixed(6) };
+
     map.on('load', () => {
       if (loading) {
         setLoading(false);
+        document.getElementsByClassName('mapContainer')[0].insertAdjacentElement('afterbegin', copyrightEl());
       }
     });
     

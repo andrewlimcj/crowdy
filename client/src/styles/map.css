@@ -133,3 +133,24 @@
 .mapboxgl-popup-tip {
   display: none;
 }
+
+.attribWrapper {
+  bottom: 0;
+  right: 0;
+  position: absolute;
+  background-color: #fff8;
+  padding: 0 4px;
+}
+
+.attribWrapper a {
+  color: #4264fb;
+  text-decoration: underline;
+  cursor: pointer;
+  font-weight: 400;
+}
+
+@media screen and (max-width: 663px) {
+  .attribWrapper {
+    font-size: 10px;
+  }
+}
