@@ -6,6 +6,8 @@ import { debounce } from 'lodash';
 
 import '../styles/map.css';
 
+import analytics from '../analytics';
+
 const DEFAULT_COORDS_LAT = 37.5866022;
 const DEFAULT_COORDS_LNG = 126.972618;
 
@@ -137,9 +139,21 @@ export const Map = ({
             <div>${loc.address}</div>
           </div>
           <div class="bottom">
-            <a href=${encodeURI(loc.link)}>VIEW</a>
-            <a href=${encodeURI(loc.directions)}>DIRECTIONS</a>
+            <a class="view" href=${encodeURI(loc.link)}>VIEW</a>
+            <a class="directions" href=${encodeURI(loc.directions)}>DIRECTIONS</a>
           </div>`;
+        popupEl.getElementsByClassName('view')[0].onclick = () => { 
+          analytics.event({
+            category: 'link',
+            action: 'Map View',
+          });
+        }
+        popupEl.getElementsByClassName('directions')[0].onclick = () => { 
+          analytics.event({
+            category: 'link',
+            action: 'Map Directions',
+          });
+        }
         const popup = new mapboxgl.Popup({ offset: 25, closeButton: false })
         .setLngLat(lnglat)
         .setDOMContent(popupEl);
