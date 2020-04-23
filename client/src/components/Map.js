@@ -15,8 +15,8 @@ const copyrightEl = () => {
   const el = document.createElement('div');
   el.className = 'attribWrapper';
   el.innerHTML = `
-  © <a href="https://www.mapbox.com/about/maps/">Mapbox</a>
-  © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors
+  &copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a>
+  &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors
   <a href="https://www.mapbox.com/map-feedback/#/-74.5/40/10">Improve this map</a>
   `;
   return el;
@@ -45,7 +45,7 @@ export const Map = ({
   const moveEndHandler = (event) => {
     const coords = mapRef.current.getCenter();
     mapCoords.current = { lat: coords.lat.toFixed(6), lng: coords.lng.toFixed(6) };
-    if (!event.originalEvent) {
+    if (!event.originalEvent && !event.geolocateSource) {
       // ignore moveend events triggered by 'flyTo' or 'fitBounds'
       return;
     } else {
@@ -53,7 +53,7 @@ export const Map = ({
     }
   }
 
-  const debounceMoveEndHandler = debounce(moveEndHandler, 3000, { leading: false, trailing: true });
+  const debounceMoveEndHandler = debounce(moveEndHandler, 2000, { leading: false, trailing: true });
 
   const setUpMap = () => {
     if (timeoutRef.current) {
@@ -90,6 +90,13 @@ export const Map = ({
     const map = mapRef.current;
     const coords = map.getCenter();
     mapCoords.current = { lat: coords.lat.toFixed(6), lng: coords.lng.toFixed(6) };
+
+    map.addControl(new mapboxgl.GeolocateControl({
+      positionOptions: {
+        enableHighAccuracy: true
+      },
+      trackUserLocation: true
+    }));
 
     map.on('load', () => {
       if (loading) {
@@ -173,7 +180,7 @@ export const Map = ({
           </div>
           <div class="middle">
             <div>${loc.name}</div>
-            <div>${loc.distance} km</div>
+            <div><img src="${process.env.PUBLIC_URL}/popup_distance.svg"/>${loc.distance} km</div>
             <div>${loc.address}</div>
           </div>
           <div class="bottom">
