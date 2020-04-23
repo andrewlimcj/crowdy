@@ -296,9 +296,7 @@ export default function App() {
               Find{" "}
               <TextLoop
                 className="textLoop"
-                interval={5000}
-                mask={true}
-                adjustingSpeed={200}
+                interval={2500}
               >
                 <span className="_0">supermarkets </span>
                 <span className="_1">shopping malls </span>
