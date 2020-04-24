@@ -24,6 +24,8 @@ import MenuItem from "@material-ui/core/MenuItem";
 
 import Map from "./components/Map";
 
+import analytics from './analytics';
+
 const categories = [
   { val: 0, name: "Supermarket" },
   { val: 1, name: "Shopping Mall" },
@@ -100,6 +102,9 @@ const getLocations = (category, latitude, longitude) => {
 };
 
 export default function App() {
+  useEffect(() => {
+    analytics.ga('send', 'pageview', '/');
+  })
   const [loading, setLoading] = useState(true);
   const allData = useRef([]);
   const [data, setData] = useState({ locations: [] });
@@ -119,7 +124,6 @@ export default function App() {
 
   // filter no time data
   const [excludeNoTimeData, setExcludeNoTimeData] = useState(false);
-
   useEffect(() => {
     if (excludeNoTimeData) {
       setData({ locations: filterDayTime(data.locations) });
@@ -278,6 +282,20 @@ export default function App() {
       });
     }
   };
+  
+  const onClickAinizeLink = () => {
+    analytics.event({
+      category: 'link',
+      action: 'ainize',
+    });
+  }
+
+  const onClickGithubLink = () => {
+    analytics.event({
+      category: 'link',
+      action: 'github',
+    });
+  }
 
   return (
     <React.Fragment>
@@ -464,11 +482,11 @@ export default function App() {
         />
       </main>
       <footer>
-        <a className="ainizeLink" href="https://ainize.ai">
+      <a className="ainizeLink" onClick={onClickAinizeLink} href="https://ainize.ai">
           <img src={AinizeIcon} />
           POWERED BY AINIZE
         </a>
-        <a className="githubLink" href="https://github.com/ainize-team2/crowdy">
+        <a className="githubLink" onClick={onClickGithubLink} href="https://github.com/liayoo/crowdy">
           <img src={GitHubIcon} />
           VISIT GITHUB
         </a>
