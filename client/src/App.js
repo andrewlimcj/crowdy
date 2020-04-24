@@ -1,6 +1,5 @@
 // core
 import React, { useState, useEffect, useRef } from "react";
-import { usePosition } from "use-position";
 import _ from "lodash";
 
 // images
@@ -109,8 +108,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const allData = useRef([]);
   const [data, setData] = useState({ locations: [] });
-  const { latitude, longitude, error } = usePosition(false);
-  const mapCoords = useRef({ lat: latitude, lng: longitude });
+  const mapCoords = useRef({ lat: null, lng: null });
 
   // for snackbar
   const [snackbarOpen, setSnackbarOpen] = React.useState(false);
@@ -223,7 +221,7 @@ export default function App() {
       getLocations(
         categories[category.current].name,
         mapCoords.current.lat,
-        mapCoords.current.lng,
+        mapCoords.current.lng
       )
     );
     if (category.current === 0) {
@@ -231,7 +229,7 @@ export default function App() {
         getLocations(
           "Grocery store",
           mapCoords.current.lat,
-          mapCoords.current.lng,
+          mapCoords.current.lng
         )
       );
     }
@@ -316,9 +314,7 @@ export default function App() {
               Find{" "}
               <TextLoop
                 className="textLoop"
-                interval={5000}
-                mask={true}
-                adjustingSpeed={200}
+                interval={2500}
               >
                 <span className="_0">supermarkets </span>
                 <span className="_1">shopping malls </span>
@@ -327,25 +323,26 @@ export default function App() {
                 <span className="_4">hospitals </span>
                 <span className="_5">pharmacies </span>
                 <span className="_6">banks </span>
-              </TextLoop>{" "}
+              </TextLoop>
+              <br />
               near you that are not crowded!
-              <h2>
-                Based on{" "}
-                <a
-                  className="link"
-                  href="https://support.google.com/business/answer/6263531?hl=en"
-                >
-                  popular times data*
-                </a>
-                <br/>
-                from Google Maps
-              </h2>
             </h1>
+            <h2>
+              Based on{" "}
+              <a
+                className="link"
+                href="https://support.google.com/business/answer/6263531?hl=en"
+              >
+                popular times data*
+              </a>
+              <br />
+              from Google Maps
+            </h2>
             <h4
               className="subtitle"
               align="left"
               color="textSecondary"
-              paragraph
+              paragraph="true"
             >
               * Data might not be 100% accurate as it is obtained via web
               scraping
@@ -466,7 +463,7 @@ export default function App() {
                     checked={excludeNoTimeData}
                     onChange={handleNoTimeData}
                   />
-                  <label for="toggleData">Exclude no time data</label>
+                  <label>Exclude no time data</label>
                 </div>
                 <img src={LegendImg} />
               </div>
@@ -478,7 +475,6 @@ export default function App() {
           data={data}
           day={day}
           time={time}
-          userGps={{ latitude, longitude }}
           mapCoords={mapCoords}
           loading={loading}
           setLoading={setLoading}
