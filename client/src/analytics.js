@@ -1,6 +1,6 @@
 import ReactGA from 'react-ga';
 
-const trackingId = "UA-120727651-10"; 
+const trackingId = "UA-164242824-3"; 
 const CHECK_USE_TIME = 30000;
 ReactGA.initialize(trackingId);
 
