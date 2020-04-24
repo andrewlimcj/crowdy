@@ -217,7 +217,7 @@ export default function App() {
       getLocations(
         categories[category.current].name,
         mapCoords.current.lat,
-        mapCoords.current.lng,
+        mapCoords.current.lng
       )
     );
     if (category.current === 0) {
@@ -225,7 +225,7 @@ export default function App() {
         getLocations(
           "Grocery store",
           mapCoords.current.lat,
-          mapCoords.current.lng,
+          mapCoords.current.lng
         )
       );
     }
@@ -296,9 +296,7 @@ export default function App() {
               Find{" "}
               <TextLoop
                 className="textLoop"
-                interval={5000}
-                mask={true}
-                adjustingSpeed={200}
+                interval={2500}
               >
                 <span className="_0">supermarkets </span>
                 <span className="_1">shopping malls </span>
@@ -307,7 +305,8 @@ export default function App() {
                 <span className="_4">hospitals </span>
                 <span className="_5">pharmacies </span>
                 <span className="_6">banks </span>
-              </TextLoop>{" "}
+              </TextLoop>
+              <br />
               near you that are not crowded!
             </h1>
             <h2>
@@ -318,7 +317,7 @@ export default function App() {
               >
                 popular times data*
               </a>
-              <br/>
+              <br />
               from Google Maps
             </h2>
             <h4
