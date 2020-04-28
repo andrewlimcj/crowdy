@@ -16,7 +16,7 @@ const server = new http.Server(app);
 app.use(express.static(path.join('client/build')));
 
 app.get('/healthz', (req, res) => {
-  res.send('Healthy');
+  res.sendStatus(200);
 });
 
 app.get('/api/locations', async (req, res) => {
