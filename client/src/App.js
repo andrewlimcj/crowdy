@@ -16,7 +16,9 @@ export default function App() {
     <React.Fragment>
       <header>
         <div className="container">
-          <h3 className="logo">Crowdy</h3>
+          <a href="/home">
+            <h3 className="logo">Crowdy</h3>
+          </a>
           <div className="menu">
             <a href="/">HOME</a>
             <a href="/about">ABOUT</a>
