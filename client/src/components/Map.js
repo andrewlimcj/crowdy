@@ -99,7 +99,7 @@ export const Map = ({
         enableHighAccuracy: true
       },
       trackUserLocation: true
-    }));
+    }), 'top-left');
 
     map.on('load', () => {
       if (loading) {
