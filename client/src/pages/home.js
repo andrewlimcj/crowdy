@@ -351,8 +351,8 @@ export default function Home() {
                 <i className="loader" />
               </div>
             )}
-            <button onClick={handleSearch} disabled={searchLoading}>
-              {searchLoading ? (
+            <button onClick={handleSearch} disabled={searchLoading || categoryLoading}>
+              {searchLoading || categoryLoading ? (
                 <img src={SearchDisabledIcon} />
               ) : (
                 <img src={SearchIcon} />
@@ -365,6 +365,8 @@ export default function Home() {
               <button
                 onClick={() => handleCategoryChange(item.val)}
                 key={index}
+                disabled={categoryLoading || searchLoading}
+                title={item.name}
               >
                 {category.current === item.val && categoryLoading ? (
                   <div className="loaderContainer">
