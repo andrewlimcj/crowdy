@@ -258,7 +258,7 @@ export const Map = ({
       <div className="contentWrapper">
         <div style={wrapperStyle} ref={mapContainerRef} className='mapContainer'/>
           {mapLoading ?
-            <div id="spinner" className="loaderContainer">
+            <div className="loaderContainer">
               <i className="loader" />
             </div> : null}
       </div>
