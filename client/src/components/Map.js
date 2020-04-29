@@ -87,7 +87,8 @@ export const Map = ({
       },
       center: center,
       zoom: initialZoom,
-      attributionControl: false
+      attributionControl: false,
+      dragRotate: false
     });
     const map = mapRef.current;
     const coords = map.getCenter();
