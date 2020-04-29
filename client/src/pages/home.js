@@ -335,7 +335,7 @@ export default function Home() {
         <div className="container">
           <div className="searchWrapper">
             <input
-              placeholder={searchLoading ? "" : "Search"}
+              placeholder={searchLoading ? "" : "Search places or addresses"}
               disabled={searchLoading}
               value={searchText}
               onChange={handleChangeText}
