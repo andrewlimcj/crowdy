@@ -390,7 +390,7 @@ export default function Home() {
                 className="day"
                 onClick={(event) => setDayAnchorEl(event.currentTarget)}
               >
-                When
+                When:{" " + days[day + 1].name}
                 <img src={ToggleIcon} />
               </button>
               <Menu
@@ -422,7 +422,7 @@ export default function Home() {
                 className="time"
                 onClick={(event) => setTimeAnchorEl(event.currentTarget)}
               >
-                Time
+                Time:{" " + (time ? times[time].name : 'N/A')}
                 <img src={ToggleIcon} />
               </button>
               <Menu

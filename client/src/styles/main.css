@@ -215,6 +215,10 @@ header .menu a:last-child {
   height: 40px;
 }
 
+.map button:disabled {
+  cursor: default !important;
+}
+
 .map .categoryWrapper button:last-child {
   margin: 0;
 }
@@ -457,5 +461,9 @@ a:active {
   }
   footer .ainizeLink {
     margin-bottom: 19px;
+  }
+  .map .searchWrapper input {
+    font-size: 16px;
+    line-height: 25px;
   }
 }
