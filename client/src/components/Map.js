@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { usePosition } from "use-position";
 import mapboxgl from 'mapbox-gl';
 import { point, center, featureCollection, distance } from '@turf/turf';
@@ -43,6 +43,7 @@ export const Map = ({
   const mapContainerRef = useRef(null);
   const { latitude, longitude, error } = usePosition(false);
   const timeoutRef = useRef(null);
+  const [mapLoading, setMapLoading] = useState(false);
 
   const moveEndHandler = (event) => {
     const coords = mapRef.current.getCenter();
@@ -51,6 +52,7 @@ export const Map = ({
       // ignore moveend events triggered by 'flyTo' or 'fitBounds'
       return;
     } else {
+      addLayerSpinner();
       handleMapCoordsChange();
     }
   }
@@ -124,6 +126,18 @@ export const Map = ({
   const handleNoUserGps = () => {
     if (!mapRef.current && (!latitude || !longitude)) {
       setUpMap();
+    }
+  }
+
+  const addLayerSpinner = () => {
+    setMapLoading(true);
+    mapRef.current.on('render', stopSpinner);
+  }
+
+  const stopSpinner = (e) => {
+    if (e.target && e.target.loaded()) {
+      setMapLoading(false);
+      mapRef.current.off('render', stopSpinner)
     }
   }
 
@@ -235,13 +249,18 @@ export const Map = ({
   }, [data, day, time]);
 
   const wrapperStyle = {
-    height: '700px'
+    height: '700px',
+    width: '100%'
   };
 
   return (
     <div className="Fade">
       <div className="contentWrapper">
         <div style={wrapperStyle} ref={mapContainerRef} className='mapContainer'/>
+          {mapLoading ?
+            <div id="spinner" className="loaderContainer">
+              <i className="loader" />
+            </div> : null}
       </div>
     </div>
   )
