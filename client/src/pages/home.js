@@ -100,7 +100,7 @@ const getLocations = (category, latitude, longitude) => {
 export default function Home() {
   useEffect(() => {
     analytics.ga("send", "pageview", "/");
-  });
+  }, []);
   const [loading, setLoading] = useState(true);
   const allData = useRef([]);
   const [data, setData] = useState({ locations: [] });
