@@ -188,6 +188,13 @@ export default function Home() {
       mapCoords.current.lat,
       mapCoords.current.lng
     );
+    if (query && query !== '') {
+      analytics.event({
+        category: 'action',
+        action: 'search',
+        value: query,
+      });
+    }
     if (!result) {
       setSearchLoading(false);
       return;
