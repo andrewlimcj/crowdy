@@ -42,17 +42,21 @@ export const Map = ({
   const mapRef = useRef(null);
   const mapContainerRef = useRef(null);
   const { latitude, longitude, error } = usePosition(false);
+  const prevUserGps = useRef({ latitude, longitude });
   const timeoutRef = useRef(null);
   const [mapLoading, setMapLoading] = useState(false);
 
   const moveEndHandler = (event) => {
     const coords = mapRef.current.getCenter();
-    mapCoords.current = { lat: coords.lat.toFixed(6), lng: coords.lng.toFixed(6) };
+    const newLat = coords.lat.toFixed(6);
+    const newLng = coords.lng.toFixed(6)
     if (!event.originalEvent && !event.geolocateSource) {
       // ignore moveend events triggered by 'flyTo' or 'fitBounds'
+      mapCoords.current = { lat: newLat, lng: newLng };
       return;
-    } else {
+    } else if (isOverThreshold(mapCoords.current.latitude, newLat) || isOverThreshold(mapCoords.current.longitude, newLng)) {
       addLayerSpinner();
+      mapCoords.current = { lat: newLat, lng: newLng };
       handleMapCoordsChange();
     }
   }
@@ -152,7 +156,7 @@ export const Map = ({
     }
     if (!mapRef.current) {
       setUpMap();
-    } else if (isOverThreshold(mapCoords.current.lat, latitude) || isOverThreshold(mapCoords.current.lng, longitude)) {
+    } else if (isOverThreshold(prevUserGps.current.latitude, latitude) || isOverThreshold(prevUserGps.current.longitude, longitude)) {
       const map = mapRef.current;
       map.jumpTo({
         center: [longitude, latitude],
@@ -161,6 +165,7 @@ export const Map = ({
       mapCoords.current = { lat: latitude.toFixed(6), lng: longitude.toFixed(6) };
       handleMapCoordsChange();
     }
+    prevUserGps.current = { latitude, longitude };
   }, [latitude, longitude]);
 
   useEffect(() => {
