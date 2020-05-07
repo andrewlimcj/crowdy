@@ -54,7 +54,7 @@ export const Map = ({
       // ignore moveend events triggered by 'flyTo' or 'fitBounds'
       mapCoords.current = { lat: newLat, lng: newLng };
       return;
-    } else if (isOverThreshold(mapCoords.current.latitude, newLat) || isOverThreshold(mapCoords.current.longitude, newLng)) {
+    } else if (isOverThreshold(mapCoords.current.lat, newLat) || isOverThreshold(mapCoords.current.lng, newLng)) {
       addLayerSpinner();
       mapCoords.current = { lat: newLat, lng: newLng };
       handleMapCoordsChange();
