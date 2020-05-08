@@ -9,6 +9,12 @@ import ProfileImage from "../images/profile.png";
 import "../styles/about.css";
 
 export default function Home() {
+  const onClickAinizeLink = () => {
+    analytics.event({
+      category: 'link',
+      action: 'ainize',
+    });
+  }
   useEffect(() => {
     analytics.ga("send", "pageview", "/about");
   });
@@ -88,7 +94,7 @@ export default function Home() {
               you're just one click away from free deployments!
             </h4>
             <a target="_blank" href="https://ainize.ai">
-              <button>Visit Ainize Website</button>
+              <button onClick={onClickAinizeLink}>Visit Ainize Website</button>
             </a>
           </div>
         </div>
