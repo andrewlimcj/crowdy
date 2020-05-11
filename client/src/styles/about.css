@@ -23,7 +23,7 @@
 }
 
 .about_hero .quote {
-  background-color: rgba(255, 255, 255, 0.95);
+  background: linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 1));
   padding: 80px 170px 0px 170px;
 }
 
@@ -71,7 +71,8 @@
   max-width: 900px;
 }
 
-.ainize button {
+.ainize button,
+.ainize button:focus {
   margin-top: 20px;
   width: 200px;
   height: 60px;
@@ -81,12 +82,11 @@
 }
 
 .ainize button:hover {
-  opacity: 0.9;
+  background-color: #854cff !important;
 }
 
-.ainize button:active,
-.ainize button:focus {
-  background-color: #1a1b1f !important;
+.ainize button:active {
+  background-color: #6535cc !important;
 }
 
 @media screen and (max-width: 1088px) {
