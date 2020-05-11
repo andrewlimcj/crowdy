@@ -107,6 +107,8 @@ export const Map = ({
       trackUserLocation: true
     }), 'top-left');
 
+    map.addControl(new mapboxgl.NavigationControl({showCompass: false}), 'top-left');
+
     map.on('load', () => {
       if (loading) {
         setLoading(false);
