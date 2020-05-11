@@ -17,7 +17,7 @@ export default function Home() {
   }
   useEffect(() => {
     analytics.ga("send", "pageview", "/about");
-  });
+  }, []);
   return (
     <main>
       <div className="about_hero section">
