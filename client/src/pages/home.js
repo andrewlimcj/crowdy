@@ -429,7 +429,7 @@ export default function Home() {
                 className="time"
                 onClick={(event) => setTimeAnchorEl(event.currentTarget)}
               >
-                Time:{" " + (time ? times[time].name : 'N/A')}
+                Time{(time ? ": " + times[time].name : "")}
                 <img src={ToggleIcon} />
               </button>
               <Menu
