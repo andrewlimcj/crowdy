@@ -9,8 +9,8 @@ import '../styles/map.css';
 
 import analytics from '../analytics';
 
-const DEFAULT_COORDS_LAT = 37.5866022;
-const DEFAULT_COORDS_LNG = 126.972618;
+const DEFAULT_COORDS_LAT = 40.747738;
+const DEFAULT_COORDS_LNG = -73.986894;
 const THRESHOLD = 0.01;
 
 const copyrightEl = () => {
