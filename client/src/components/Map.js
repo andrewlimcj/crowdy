@@ -61,7 +61,7 @@ export const Map = ({
     }
   }
 
-  const debounceMoveEndHandler = debounce(moveEndHandler, 2000, { leading: false, trailing: true });
+  const debounceMoveEndHandler = debounce(moveEndHandler, 1000, { leading: false, trailing: true });
 
   const setUpMap = () => {
     if (timeoutRef.current) {
