@@ -104,6 +104,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const allData = useRef([]);
   const [data, setData] = useState({ locations: [] });
+  const mapRef = useRef(null);
   const mapCoords = useRef({ lat: null, lng: null });
 
   // for snackbar
@@ -135,6 +136,8 @@ export default function Home() {
   useEffect(() => {
     setData({ locations: filterDayTime(allData.current) });
   }, [day, time]);
+
+  const disableQuery = () => searchLoading || categoryLoading || !mapRef.current || (mapRef.current && (mapRef.current.isMoving() || mapRef.current.isZooming()));
 
   const handleChangeDay = (event) => {
     setDay(event.target.value);
@@ -175,6 +178,7 @@ export default function Home() {
   };
 
   const handleSearch = async () => {
+    if (disableQuery()) return;
     setSearchLoading(true);
     const query = searchText;
     category.current = 0;
@@ -183,10 +187,11 @@ export default function Home() {
     setDay(-1);
     setTime(null);
 
+    const coords = mapRef.current.getCenter();
     const result = await getLocations(
       query,
-      mapCoords.current.lat,
-      mapCoords.current.lng
+      coords.lat.toFixed(6),
+      coords.lng.toFixed(6)
     );
     if (query && query !== '') {
       analytics.event({
@@ -220,6 +225,7 @@ export default function Home() {
   };
 
   const handleCategoryChange = async (val) => {
+    if (disableQuery()) return;
     category.current = val;
     setCategoryLoading(true);
     await fetchAndFilterData();
@@ -230,20 +236,21 @@ export default function Home() {
     if (!mapCoords.current.lat || !mapCoords.current.lng) {
       return;
     }
+    const coords = mapRef.current.getCenter();
     const promises = [];
     promises.push(
       getLocations(
         categories[category.current].name,
-        mapCoords.current.lat,
-        mapCoords.current.lng
+        coords.lat.toFixed(6),
+        coords.lng.toFixed(6)
       )
     );
     if (category.current === 0) {
       promises.push(
         getLocations(
           "Grocery store",
-          mapCoords.current.lat,
-          mapCoords.current.lng
+          coords.lat.toFixed(6),
+          coords.lng.toFixed(6)
         )
       );
     }
@@ -342,7 +349,7 @@ export default function Home() {
         <div className="container">
           <div className="searchWrapper">
             <input
-              placeholder={searchLoading ? "" : 'Try "New York restaurants"'}
+              placeholder={searchLoading ? "" : 'Try "New York grocery stores"'}
               disabled={searchLoading}
               value={searchText}
               onChange={handleChangeText}
@@ -481,6 +488,7 @@ export default function Home() {
         mapCoords={mapCoords}
         loading={loading}
         setLoading={setLoading}
+        mapRef={mapRef}
         handleMapCoordsChange={handleMapCoordsChange}
       />
     </main>

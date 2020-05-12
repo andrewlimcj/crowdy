@@ -35,11 +35,11 @@ export const Map = ({
   mapCoords,
   loading,
   setLoading,
+  mapRef,
   handleMapCoordsChange,
 }) => {
   const initialZoom = 15;
   const markers = useRef([]);
-  const mapRef = useRef(null);
   const mapContainerRef = useRef(null);
   const { latitude, longitude, error } = usePosition(false);
   const prevUserGps = useRef({ latitude, longitude });
