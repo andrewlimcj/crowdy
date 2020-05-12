@@ -157,7 +157,7 @@
 }
 
 @media screen and (max-width: 460px) {
-  .section {
+  .about_hero, .ainize {
     margin: 0 !important;
   }
   .about_hero .container {
