@@ -47,7 +47,7 @@ export default function App() {
         </Route>
       </Switch>
       <footer>
-        <a className="ainizeLink"  onClick={onClickAinizeLink} target="_blank" href="https://ainize.ai">
+        <a className="ainizeLink"  onClick={onClickAinizeLink} target="_blank" href="https://www.ainize.ai/liayoo/crowdy">
           <img src={AinizeIcon} />
           POWERED BY AINIZE
         </a>

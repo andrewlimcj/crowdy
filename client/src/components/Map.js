@@ -9,8 +9,8 @@ import '../styles/map.css';
 
 import analytics from '../analytics';
 
-const DEFAULT_COORDS_LAT = 37.5866022;
-const DEFAULT_COORDS_LNG = 126.972618;
+const DEFAULT_COORDS_LAT = 40.747738;
+const DEFAULT_COORDS_LNG = -73.986894;
 const THRESHOLD = 0.01;
 
 const copyrightEl = () => {
@@ -35,11 +35,11 @@ export const Map = ({
   mapCoords,
   loading,
   setLoading,
+  mapRef,
   handleMapCoordsChange,
 }) => {
   const initialZoom = 15;
   const markers = useRef([]);
-  const mapRef = useRef(null);
   const mapContainerRef = useRef(null);
   const { latitude, longitude, error } = usePosition(false);
   const prevUserGps = useRef({ latitude, longitude });
@@ -61,7 +61,7 @@ export const Map = ({
     }
   }
 
-  const debounceMoveEndHandler = debounce(moveEndHandler, 2000, { leading: false, trailing: true });
+  const debounceMoveEndHandler = debounce(moveEndHandler, 1000, { leading: false, trailing: true });
 
   const setUpMap = () => {
     if (timeoutRef.current) {
@@ -106,6 +106,8 @@ export const Map = ({
       },
       trackUserLocation: true
     }), 'top-left');
+
+    map.addControl(new mapboxgl.NavigationControl({showCompass: false}), 'top-left');
 
     map.on('load', () => {
       if (loading) {
