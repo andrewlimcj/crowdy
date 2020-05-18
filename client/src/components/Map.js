@@ -3,7 +3,6 @@ import { usePosition } from "use-position";
 import mapboxgl from 'mapbox-gl';
 import { point, center, featureCollection, distance } from '@turf/turf';
 import getInfoFromNowStatus from '../getInfoFromNowStatus';
-import { debounce } from 'lodash';
 
 import '../styles/map.css';
 
@@ -24,6 +23,18 @@ const copyrightEl = () => {
   return el;
 }
 
+const searchEl = () => {
+  const el = document.createElement('div');
+  el.className = 'mapSearchWrapper';
+  el.innerHTML = `
+  <div class="mapSearch">
+    <img src="${process.env.PUBLIC_URL}/icon-search-map.svg" width="16" height="16" />
+    Search current location
+  </div>
+  `;
+  return el;
+}
+
 const isOverThreshold = (a, b) => {
  return Math.abs(Number(a) - Number(b)) > THRESHOLD;
 }
@@ -36,7 +47,8 @@ export const Map = ({
   loading,
   setLoading,
   mapRef,
-  handleMapCoordsChange,
+  handleMapSearch,
+  mapLoading
 }) => {
   const initialZoom = 15;
   const markers = useRef([]);
@@ -44,24 +56,6 @@ export const Map = ({
   const { latitude, longitude, error } = usePosition(false);
   const prevUserGps = useRef({ latitude, longitude });
   const timeoutRef = useRef(null);
-  const [mapLoading, setMapLoading] = useState(false);
-
-  const moveEndHandler = (event) => {
-    const coords = mapRef.current.getCenter();
-    const newLat = coords.lat.toFixed(6);
-    const newLng = coords.lng.toFixed(6)
-    if (!event.originalEvent && !event.geolocateSource) {
-      // ignore moveend events triggered by 'flyTo' or 'fitBounds'
-      mapCoords.current = { lat: newLat, lng: newLng };
-      return;
-    } else if (isOverThreshold(mapCoords.current.lat, newLat) || isOverThreshold(mapCoords.current.lng, newLng)) {
-      addLayerSpinner();
-      mapCoords.current = { lat: newLat, lng: newLng };
-      handleMapCoordsChange();
-    }
-  }
-
-  const debounceMoveEndHandler = debounce(moveEndHandler, 1000, { leading: false, trailing: true });
 
   const setUpMap = () => {
     if (timeoutRef.current) {
@@ -113,10 +107,10 @@ export const Map = ({
       if (loading) {
         setLoading(false);
         document.getElementsByClassName('mapContainer')[0].insertAdjacentElement('afterbegin', copyrightEl());
+        document.getElementsByClassName('mapContainer')[0].insertAdjacentElement('afterbegin', searchEl());
+        document.getElementsByClassName('mapSearch')[0].addEventListener("click", handleMapSearch);
       }
     });
-    
-    map.on('moveend', debounceMoveEndHandler);
 
     map.on("wheel", event => {
       // avoid zooming when user is scrolling the page
@@ -126,24 +120,12 @@ export const Map = ({
       event.preventDefault();
     });
 
-    handleMapCoordsChange();
+    handleMapSearch();
   }
 
   const handleNoUserGps = () => {
     if (!mapRef.current && (!latitude || !longitude)) {
       setUpMap();
-    }
-  }
-
-  const addLayerSpinner = () => {
-    setMapLoading(true);
-    mapRef.current.on('render', stopSpinner);
-  }
-
-  const stopSpinner = (e) => {
-    if (e.target && e.target.loaded()) {
-      setMapLoading(false);
-      mapRef.current.off('render', stopSpinner)
     }
   }
 
@@ -165,7 +147,7 @@ export const Map = ({
         zoom: initialZoom
       });
       mapCoords.current = { lat: latitude.toFixed(6), lng: longitude.toFixed(6) };
-      handleMapCoordsChange();
+      handleMapSearch();
     }
     prevUserGps.current = { latitude, longitude };
   }, [latitude, longitude]);

@@ -185,6 +185,39 @@
   color: #7586b9;
 }
 
+.mapSearchWrapper {
+  top: 25px;
+  left: 50%;
+  position: absolute;
+}
+
+.mapSearchWrapper div {
+  position: relative;
+  left: -50%;
+  width: 228px;
+  height: 40px;
+  background-color: #fff;
+  border-radius: 20px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-style: normal;
+  font-weight: bold;
+  font-size: 14px;
+  line-height: 28px;
+  color: #6B6A88;
+}
+
+.mapSearchWrapper div:hover {
+  background-color: #ececec;
+}
+
+.mapSearchWrapper div img {
+  margin-right: 8px;
+}
+
 @media screen and (max-width: 663px) {
   .contentWrapper .loaderContainer {
     height: 500px !important;

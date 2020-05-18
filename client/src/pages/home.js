@@ -102,6 +102,7 @@ export default function Home() {
     analytics.ga("send", "pageview", "/");
   }, []);
   const [loading, setLoading] = useState(true);
+  const [mapLoading, setMapLoading] = useState(false);
   const allData = useRef([]);
   const [data, setData] = useState({ locations: [] });
   const mapRef = useRef(null);
@@ -136,6 +137,18 @@ export default function Home() {
   useEffect(() => {
     setData({ locations: filterDayTime(allData.current) });
   }, [day, time]);
+
+  const addLayerSpinner = () => {
+    setMapLoading(true);
+    mapRef.current.on('render', stopSpinner);
+  }
+
+  const stopSpinner = (e) => {
+    if (e.target && e.target.loaded()) {
+      setMapLoading(false);
+      mapRef.current.off('render', stopSpinner)
+    }
+  }
 
   const disableQuery = () => searchLoading || categoryLoading || !mapRef.current || (mapRef.current && (mapRef.current.isMoving() || mapRef.current.isZooming()));
 
@@ -180,6 +193,7 @@ export default function Home() {
   const handleSearch = async () => {
     if (disableQuery()) return;
     setSearchLoading(true);
+    addLayerSpinner();
     const query = searchText;
     category.current = 0;
     setSearchText("");
@@ -220,7 +234,9 @@ export default function Home() {
     setSearchLoading(false);
   };
 
-  const handleMapCoordsChange = async () => {
+  const handleMapSearch = async () => {
+    if (disableQuery()) return;
+    addLayerSpinner();
     await fetchAndFilterData();
   };
 
@@ -228,12 +244,13 @@ export default function Home() {
     if (disableQuery()) return;
     category.current = val;
     setCategoryLoading(true);
+    addLayerSpinner();
     await fetchAndFilterData();
     setCategoryLoading(false);
   };
 
   const fetchAndFilterData = async () => {
-    if (!mapCoords.current.lat || !mapCoords.current.lng) {
+    if (!mapRef.current) {
       return;
     }
     const coords = mapRef.current.getCenter();
@@ -489,7 +506,8 @@ export default function Home() {
         loading={loading}
         setLoading={setLoading}
         mapRef={mapRef}
-        handleMapCoordsChange={handleMapCoordsChange}
+        handleMapSearch={handleMapSearch}
+        mapLoading={mapLoading}
       />
     </main>
   );
