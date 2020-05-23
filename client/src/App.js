@@ -49,11 +49,11 @@ export default function App() {
       <footer>
         <a className="ainizeLink"  onClick={onClickAinizeLink} target="_blank" href="https://www.ainize.ai/liayoo/crowdy">
           <img src={AinizeIcon} />
-          POWERED BY AINIZE
+          Powered by Ainize
         </a>
         <a className="githubLink" onClick={onClickGithubLink} target="_blank" href="https://github.com/ainize-team2/crowdy">
           <img src={GitHubIcon} />
-          VISIT GITHUB
+          Contribute on GitHub
         </a>
       </footer>
     </React.Fragment>
