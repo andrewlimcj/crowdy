@@ -282,7 +282,9 @@ footer a {
   display: flex;
   flex-direction: row;
   margin-right: 20px;
-  font-weight: 500;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 20px;
   text-decoration: none;
   color: #8E8E94 !important;
 }
