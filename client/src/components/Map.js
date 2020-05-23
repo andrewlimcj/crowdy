@@ -12,28 +12,22 @@ const DEFAULT_COORDS_LAT = 40.747738;
 const DEFAULT_COORDS_LNG = -73.986894;
 const THRESHOLD = 0.01;
 
-const copyrightEl = () => {
-  const el = document.createElement('div');
-  el.className = 'attribWrapper';
-  el.innerHTML = `
+const copyrightEl = `
+<div class="attribWrapper">
   &copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a>
   &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors
   <a href="https://www.mapbox.com/map-feedback/#/-74.5/40/10">Improve this map</a>
-  `;
-  return el;
-}
+</div>
+`;
 
-const searchEl = () => {
-  const el = document.createElement('div');
-  el.className = 'mapSearchWrapper';
-  el.innerHTML = `
+const searchEl = `
+<div class="mapSearchWrapper">
   <div class="mapSearch">
     <img src="${process.env.PUBLIC_URL}/icon-search-map.svg" width="16" height="16" />
     Search current location
   </div>
-  `;
-  return el;
-}
+</div>
+`;
 
 const isOverThreshold = (a, b) => {
  return Math.abs(Number(a) - Number(b)) > THRESHOLD;
@@ -48,7 +42,8 @@ export const Map = ({
   setLoading,
   mapRef,
   handleMapSearch,
-  mapLoading
+  mapLoading,
+  excludeNoTimeData
 }) => {
   const initialZoom = 15;
   const markers = useRef([]);
@@ -106,9 +101,9 @@ export const Map = ({
     map.on('load', () => {
       if (loading) {
         setLoading(false);
-        document.getElementsByClassName('mapContainer')[0].insertAdjacentElement('afterbegin', copyrightEl());
-        document.getElementsByClassName('mapContainer')[0].insertAdjacentElement('afterbegin', searchEl());
-        document.getElementsByClassName('mapSearch')[0].addEventListener("click", handleMapSearch);
+        document.getElementsByClassName('mapContainer')[0].insertAdjacentHTML('afterbegin', copyrightEl);
+        document.getElementsByClassName('mapContainer')[0].insertAdjacentHTML('afterbegin', searchEl);
+        document.getElementsByClassName('mapSearch')[0].addEventListener("click", () => handleMapSearch(excludeNoTimeData));
       }
     });
 

@@ -124,15 +124,7 @@ export default function Home() {
   const [categoryLoading, setCategoryLoading] = useState(false);
 
   // filter no time data
-  const [excludeNoTimeData, setExcludeNoTimeData] = useState(false);
-
-  useEffect(() => {
-    if (excludeNoTimeData) {
-      setData({ locations: filterDayTime(data.locations) });
-    } else {
-      setData({ locations: JSON.parse(JSON.stringify(allData.current)) });
-    }
-  }, [excludeNoTimeData]);
+  const excludeNoTimeData = useRef(false);
 
   useEffect(() => {
     setData({ locations: filterDayTime(allData.current) });
@@ -187,7 +179,12 @@ export default function Home() {
   };
 
   const handleNoTimeData = () => {
-    setExcludeNoTimeData(!excludeNoTimeData);
+    excludeNoTimeData.current = !excludeNoTimeData.current;
+    if (excludeNoTimeData.current) {
+      setData({ locations: filterDayTime(data.locations) });
+    } else {
+      setData({ locations: JSON.parse(JSON.stringify(allData.current)) });
+    }
   };
 
   const handleSearch = async () => {
@@ -197,7 +194,7 @@ export default function Home() {
     const query = searchText;
     category.current = 0;
     setSearchText("");
-    setExcludeNoTimeData(false);
+    excludeNoTimeData.current = false;
     setDay(-1);
     setTime(null);
 
@@ -234,10 +231,10 @@ export default function Home() {
     setSearchLoading(false);
   };
 
-  const handleMapSearch = async () => {
+  const handleMapSearch = async (excludeFlag) => {
     if (disableQuery()) return;
     addLayerSpinner();
-    await fetchAndFilterData();
+    await fetchAndFilterData(excludeFlag);
   };
 
   const handleCategoryChange = async (val) => {
@@ -249,7 +246,7 @@ export default function Home() {
     setCategoryLoading(false);
   };
 
-  const fetchAndFilterData = async () => {
+  const fetchAndFilterData = async (excludeFlag = false) => {
     if (!mapRef.current) {
       return;
     }
@@ -293,7 +290,7 @@ export default function Home() {
     allData.current = JSON.parse(JSON.stringify(data.locations));
 
     // exclude "no time data" and filter by current day, time settings
-    if (excludeNoTimeData) {
+    if (excludeNoTimeData.current || excludeFlag) {
       data.locations = filterDayTime(data.locations);
     }
 
@@ -301,7 +298,7 @@ export default function Home() {
   };
 
   const filterDayTime = (data) => {
-    if (!excludeNoTimeData) return data;
+    if (!excludeNoTimeData.current) return data;
     if (day === -1) {
       return _.filter(data, (loc) => loc.nowStatus !== "No popular times data");
     } else {
@@ -487,7 +484,7 @@ export default function Home() {
                 <input
                   id="toggleData"
                   type="checkbox"
-                  checked={excludeNoTimeData}
+                  checked={excludeNoTimeData.current}
                   onChange={handleNoTimeData}
                 />
                 <label>Exclude no time data</label>
@@ -508,6 +505,7 @@ export default function Home() {
         mapRef={mapRef}
         handleMapSearch={handleMapSearch}
         mapLoading={mapLoading}
+        excludeNoTimeData={excludeNoTimeData}
       />
     </main>
   );
