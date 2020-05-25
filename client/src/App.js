@@ -15,15 +15,15 @@ import analytics from "./analytics";
 export default function App() {
   const onClickAinizeLink = () => {
     analytics.event({
-      category: 'link',
-      action: 'ainize',
+      category: 'spotainize_common',
+      action: 'poweredby_click',
     });
   }
 
   const onClickGithubLink = () => {
     analytics.event({
-      category: 'link',
-      action: 'github',
+      category: 'spotainize_common',
+      action: 'github_click',
     });
   }
   return (

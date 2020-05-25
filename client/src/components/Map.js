@@ -190,14 +190,14 @@ export const Map = ({
           </div>`;
         popupEl.getElementsByClassName('view')[0].onclick = () => { 
           analytics.event({
-            category: 'link',
-            action: 'Map View',
+            category: 'spotainize_common',
+            action: 'map_view_click',
           });
         }
         popupEl.getElementsByClassName('directions')[0].onclick = () => { 
           analytics.event({
-            category: 'link',
-            action: 'Map Directions',
+            category: 'spotainize_common',
+            action: 'map_directions_click',
           });
         }
         const popup = new mapboxgl.Popup({ offset: 25, closeButton: false })

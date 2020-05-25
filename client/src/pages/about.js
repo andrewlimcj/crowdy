@@ -11,8 +11,14 @@ import "../styles/about.css";
 export default function Home() {
   const onClickAinizeLink = () => {
     analytics.event({
-      category: 'link',
-      action: 'ainize',
+      category: 'spotainize_common',
+      action: 'poweredby_click',
+    });
+  }
+  const onClickGithubLink = () => {
+    analytics.event({
+      category: 'spotainize_common',
+      action: 'github_click',
     });
   }
   useEffect(() => {
@@ -52,11 +58,11 @@ export default function Home() {
             <h2>How to join</h2>
             <h4>
               Create a branch and send pull requests to this {" "}
-              <a target="_blank" href="https://github.com/ainize-team2/crowdy">
+              <a target="_blank"  onClick={onClickGithubLink} href="https://github.com/ainize-team2/crowdy">
                 Github repo
               </a>{" "}
               to make Crowdy better, or simply use our{" "}
-              <a href="https://www.ainize.ai/liayoo/crowdy" target="_blank">
+              <a href="https://www.ainize.ai/liayoo/crowdy" onClick={onClickAinizeLink} target="_blank">
                 location APIs
               </a>{" "}
                in other interesting projects!
