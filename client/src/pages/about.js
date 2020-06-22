@@ -5,6 +5,8 @@ import _ from "lodash";
 import analytics from "../analytics";
 
 import ProfileImage from "../images/profile.png";
+import AinizeImage from "../images/icon-ainize-logo-w.svg";
+import StackOverflowImage from "../images/icon-stackoverflow.svg";
 
 import "../styles/about.css";
 
@@ -19,6 +21,12 @@ export default function Home() {
     analytics.event({
       category: 'spotainize_common',
       action: 'github_click',
+    });
+  }
+  const onClickStackOverflowLink = () => {
+    analytics.event({
+      category: 'spotainize_common',
+      action: 'stackoverflow_click ',
     });
   }
   useEffect(() => {
@@ -101,9 +109,20 @@ export default function Home() {
               repositories is free at Ainize. If your repo has a Dockerfile,
               you're just one click away from free deployments!
             </h4>
-            <a target="_blank" href="https://ainize.ai">
-              <button onClick={onClickAinizeLink}>Visit Ainize Website</button>
-            </a>
+            <div>
+              <a target="_blank" href="https://ainize.ai">
+                <button onClick={onClickAinizeLink}>
+                  <img src={AinizeImage} />
+                  Visit Ainize Website
+                </button>
+              </a>
+              <a target="_blank" href="https://stackoverflow.com/questions/tagged/ainize">
+                <button onClick={onClickStackOverflowLink}>
+                  <img src={StackOverflowImage} />
+                  Ask on Stack Overflow
+                </button>
+              </a>
+            </div>
           </div>
         </div>
       </div>
